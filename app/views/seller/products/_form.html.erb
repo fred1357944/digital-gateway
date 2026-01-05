@@ -1,0 +1,58 @@
+<%= form_with model: [:seller, @product], class: "space-y-8" do |f| %>
+  <% if @product.errors.any? %>
+    <div class="p-4 bg-red-50 border border-red-100 rounded-lg">
+      <p class="text-sm text-red-600">
+        <% @product.errors.full_messages.each do |message| %>
+          <%= message %><br>
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :title, "Title", class: "block text-xs text-neutral-500 uppercase tracking-wider mb-2" %>
+    <%= f.text_field :title,
+        placeholder: "Product name",
+        class: "w-full px-0 py-3 border-0 border-b border-neutral-200 focus:border-neutral-900 focus:ring-0 bg-transparent text-lg placeholder-neutral-300 transition-colors" %>
+  </div>
+
+  <div>
+    <%= f.label :description, "Description", class: "block text-xs text-neutral-500 uppercase tracking-wider mb-2" %>
+    <%= f.text_area :description,
+        rows: 4,
+        placeholder: "Describe your product...",
+        class: "w-full px-0 py-3 border-0 border-b border-neutral-200 focus:border-neutral-900 focus:ring-0 bg-transparent text-sm placeholder-neutral-300 transition-colors resize-none" %>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <div>
+      <%= f.label :price, "Price (NT$)", class: "block text-xs text-neutral-500 uppercase tracking-wider mb-2" %>
+      <%= f.number_field :price,
+          step: 1,
+          min: 1,
+          placeholder: "0",
+          class: "w-full px-0 py-3 border-0 border-b border-neutral-200 focus:border-neutral-900 focus:ring-0 bg-transparent text-lg placeholder-neutral-300 transition-colors" %>
+    </div>
+
+    <div>
+      <%= f.label :content_url, "Content URL", class: "block text-xs text-neutral-500 uppercase tracking-wider mb-2" %>
+      <%= f.url_field :content_url,
+          placeholder: "https://...",
+          class: "w-full px-0 py-3 border-0 border-b border-neutral-200 focus:border-neutral-900 focus:ring-0 bg-transparent text-sm placeholder-neutral-300 transition-colors" %>
+    </div>
+  </div>
+
+  <div>
+    <%= f.label :preview_url, "Preview URL (optional)", class: "block text-xs text-neutral-500 uppercase tracking-wider mb-2" %>
+    <%= f.url_field :preview_url,
+        placeholder: "https://... (free preview)",
+        class: "w-full px-0 py-3 border-0 border-b border-neutral-200 focus:border-neutral-900 focus:ring-0 bg-transparent text-sm placeholder-neutral-300 transition-colors" %>
+  </div>
+
+  <div class="pt-6 flex items-center gap-4">
+    <%= f.submit @product.persisted? ? "Save changes" : "Create product",
+        class: "px-8 py-4 bg-neutral-900 text-white text-sm font-medium rounded-full hover:bg-neutral-700 transition-colors cursor-pointer" %>
+    <%= link_to "Cancel", @product.persisted? ? seller_product_path(@product) : seller_products_path,
+        class: "text-sm text-neutral-500 hover:text-neutral-900" %>
+  </div>
+<% end %>

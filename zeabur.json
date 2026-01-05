@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schema.zeabur.app/template.json",
+  "name": "Digital Gateway",
+  "description": "Digital goods marketplace with MVT validation - Rails 8.1",
+  "icon": "https://raw.githubusercontent.com/rails/rails/main/guides/assets/images/favicon.ico",
+  "tags": ["ruby", "rails", "postgresql", "marketplace"],
+  "readme": "# Digital Gateway\n\nA minimalist digital goods marketplace built with Rails 8.1.\n\n## Features\n- MVT (Minimal Viability Test) content validation\n- Seller dashboard\n- Secure payment integration (ECPay)\n- Modern Tailwind CSS UI",
+  "services": [
+    {
+      "name": "web",
+      "template": "PREBUILT",
+      "spec": {
+        "source": {
+          "git": {}
+        },
+        "ports": [
+          {
+            "id": "web",
+            "port": 3000,
+            "type": "HTTP"
+          }
+        ],
+        "env": {
+          "RAILS_ENV": {
+            "default": "production"
+          },
+          "RAILS_LOG_TO_STDOUT": {
+            "default": "true"
+          },
+          "RAILS_SERVE_STATIC_FILES": {
+            "default": "true"
+          },
+          "SECRET_KEY_BASE": {
+            "generate": "SECRET"
+          },
+          "DATABASE_URL": {
+            "default": "${POSTGRES_CONNECTION_STRING}"
+          },
+          "GEMINI_API_KEY": {
+            "default": ""
+          }
+        }
+      }
+    },
+    {
+      "name": "postgresql",
+      "template": "POSTGRESQL"
+    }
+  ]
+}

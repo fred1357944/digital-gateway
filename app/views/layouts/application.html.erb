@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <title><%= content_for(:title) || "Digital Gateway" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+      body { font-family: 'Inter', -apple-system, sans-serif; }
+    </style>
+  </head>
+
+  <body class="min-h-screen bg-white text-neutral-900 antialiased">
+    <!-- Minimal Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <%= link_to root_path, class: "text-lg font-medium tracking-tight hover:opacity-60 transition-opacity" do %>
+            Digital Gateway
+          <% end %>
+
+          <!-- Nav Links -->
+          <div class="flex items-center gap-8">
+            <%= link_to "Explore", products_path, class: "text-sm text-neutral-500 hover:text-neutral-900 transition-colors" %>
+            <%= link_to "Sell", seller_products_path, class: "text-sm text-neutral-500 hover:text-neutral-900 transition-colors" %>
+
+            <% if user_signed_in? %>
+              <%= link_to settings_path, class: "text-sm text-neutral-400 hover:text-neutral-900 transition-colors" do %>
+                <%= current_user.email.split('@').first %>
+              <% end %>
+              <%= button_to "Logout", destroy_user_session_path, method: :delete, class: "text-sm text-neutral-500 hover:text-neutral-900 transition-colors" %>
+            <% else %>
+              <%= link_to "Login", new_user_session_path, class: "text-sm text-neutral-500 hover:text-neutral-900 transition-colors" %>
+              <%= link_to "Start", new_user_registration_path, class: "text-sm px-4 py-2 bg-neutral-900 text-white rounded-full hover:bg-neutral-700 transition-colors" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Flash Messages with auto-dismiss -->
+    <% if notice %>
+      <div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-neutral-900 text-white text-sm rounded-full shadow-lg animate-fade-in"
+           data-controller="flash" data-flash-delay-value="3000">
+        <%= notice %>
+      </div>
+    <% end %>
+    <% if alert %>
+      <div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-red-600 text-white text-sm rounded-full shadow-lg animate-fade-in"
+           data-controller="flash" data-flash-delay-value="5000">
+        <%= alert %>
+      </div>
+    <% end %>
+
+    <style>
+      @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+      @keyframes fadeOut { to { opacity: 0; transform: translate(-50%, -10px); } }
+      .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+      .animate-fade-out { animation: fadeOut 0.3s ease-out forwards; }
+    </style>
+
+    <!-- Main Content -->
+    <main class="pt-16">
+      <%= yield %>
+    </main>
+
+    <!-- Minimal Footer -->
+    <footer class="border-t border-neutral-100 mt-32">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          <div>
+            <p class="text-sm font-medium">Digital Gateway</p>
+            <p class="text-xs text-neutral-400 mt-1">Digital goods marketplace with MVT validation</p>
+          </div>
+          <div class="flex gap-8 text-xs text-neutral-400">
+            <span>&copy; <%= Time.current.year %></span>
+            <span>Rails 8.1</span>
+            <span>Taiwan</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

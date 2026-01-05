@@ -1,0 +1,92 @@
+<!-- Hero - Minimal & Bold -->
+<section class="min-h-[80vh] flex items-center">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24">
+    <div class="max-w-3xl">
+      <h1 class="text-5xl md:text-7xl font-light tracking-tight leading-[1.1] mb-8">
+        Sell digital goods<br>
+        <span class="text-neutral-400">with confidence.</span>
+      </h1>
+      <p class="text-lg text-neutral-500 max-w-xl mb-12 leading-relaxed">
+        A marketplace that validates content quality before it reaches buyers.
+        Built for creators who care about what they sell.
+      </p>
+      <div class="flex items-center gap-6">
+        <%= link_to new_user_registration_path, class: "px-8 py-4 bg-neutral-900 text-white text-sm font-medium rounded-full hover:bg-neutral-700 transition-colors" do %>
+          Start selling →
+        <% end %>
+        <%= link_to products_path, class: "text-sm text-neutral-500 hover:text-neutral-900 transition-colors" do %>
+          Browse products
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features - Clean Grid -->
+<section class="border-t border-neutral-100">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24">
+    <div class="grid md:grid-cols-3 gap-16">
+      <div>
+        <p class="text-xs text-neutral-400 uppercase tracking-wider mb-4">01</p>
+        <h3 class="text-lg font-medium mb-3">MVT Validation</h3>
+        <p class="text-sm text-neutral-500 leading-relaxed">
+          Four-dimensional content analysis. Check assumptions, structure, logic, and scientific integrity automatically.
+        </p>
+      </div>
+      <div>
+        <p class="text-xs text-neutral-400 uppercase tracking-wider mb-4">02</p>
+        <h3 class="text-lg font-medium mb-3">BYOK Integration</h3>
+        <p class="text-sm text-neutral-500 leading-relaxed">
+          Bring your own API key. Use your Gemini quota, control costs, no hidden fees.
+        </p>
+      </div>
+      <div>
+        <p class="text-xs text-neutral-400 uppercase tracking-wider mb-4">03</p>
+        <h3 class="text-lg font-medium mb-3">Smart Access</h3>
+        <p class="text-sm text-neutral-500 leading-relaxed">
+          Signed URLs, timed tokens, automatic permissions. Host content anywhere, we handle access.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works - Minimal Steps -->
+<section class="bg-neutral-50">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24">
+    <h2 class="text-3xl font-light mb-16">How it works</h2>
+    <div class="grid md:grid-cols-4 gap-8">
+      <div class="flex flex-col">
+        <span class="text-6xl font-extralight text-neutral-200 mb-4">1</span>
+        <p class="text-sm font-medium mb-2">Create</p>
+        <p class="text-xs text-neutral-500">Add your product with content links</p>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-6xl font-extralight text-neutral-200 mb-4">2</span>
+        <p class="text-sm font-medium mb-2">Validate</p>
+        <p class="text-xs text-neutral-500">MVT checks content quality</p>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-6xl font-extralight text-neutral-200 mb-4">3</span>
+        <p class="text-sm font-medium mb-2">Publish</p>
+        <p class="text-xs text-neutral-500">Go live with verified badge</p>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-6xl font-extralight text-neutral-200 mb-4">4</span>
+        <p class="text-sm font-medium mb-2">Earn</p>
+        <p class="text-xs text-neutral-500">ECPay handles Taiwan payments</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA - Simple -->
+<section class="border-t border-neutral-100">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-32 text-center">
+    <h2 class="text-4xl md:text-5xl font-light mb-8">Ready to start?</h2>
+    <p class="text-neutral-500 mb-12">Free to list. Only pay when you sell.</p>
+    <%= link_to new_user_registration_path, class: "inline-block px-8 py-4 bg-neutral-900 text-white text-sm font-medium rounded-full hover:bg-neutral-700 transition-colors" do %>
+      Create account →
+    <% end %>
+  </div>
+</section>

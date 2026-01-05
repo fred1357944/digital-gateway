@@ -1,0 +1,141 @@
+<div class="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+  <!-- Breadcrumb -->
+  <nav class="mb-8">
+    <ol class="flex items-center gap-2 text-sm text-neutral-400">
+      <li><%= link_to "Home", root_path, class: "hover:text-neutral-900" %></li>
+      <li>/</li>
+      <li><%= link_to "Products", products_path, class: "hover:text-neutral-900" %></li>
+      <li>/</li>
+      <li class="text-neutral-900"><%= truncate(@product.title, length: 30) %></li>
+    </ol>
+  </nav>
+
+  <div class="grid lg:grid-cols-5 gap-16">
+    <!-- Main Content - 3 columns -->
+    <div class="lg:col-span-3 space-y-12">
+      <!-- Product Image -->
+      <div class="aspect-video bg-neutral-100 rounded-xl overflow-hidden flex items-center justify-center">
+        <svg class="w-24 h-24 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+
+      <!-- Title & Meta -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-neutral-400 uppercase tracking-wider"><%= @product.content_type || 'Digital' %></span>
+          <% if @product.published? %>
+            <span class="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full">✓ MVT Verified</span>
+          <% end %>
+        </div>
+        <h1 class="text-3xl font-medium"><%= @product.title %></h1>
+        <p class="text-neutral-500 leading-relaxed"><%= @product.description %></p>
+      </div>
+
+      <!-- Seller Info (Airbnb style) -->
+      <div class="flex items-center gap-4 py-6 border-t border-b border-neutral-100">
+        <div class="w-12 h-12 bg-neutral-900 rounded-full flex items-center justify-center text-white font-medium">
+          <%= @product.seller_profile&.store_name&.first&.upcase || 'S' %>
+        </div>
+        <div>
+          <p class="font-medium"><%= @product.seller_profile&.store_name || 'Seller' %></p>
+          <p class="text-sm text-neutral-500">Verified seller</p>
+        </div>
+      </div>
+
+      <!-- What's included -->
+      <div class="space-y-4">
+        <h2 class="text-lg font-medium">What's included</h2>
+        <ul class="space-y-3">
+          <li class="flex items-center gap-3 text-sm text-neutral-600">
+            <span class="w-5 h-5 bg-neutral-100 rounded-full flex items-center justify-center text-xs">✓</span>
+            Full access to content
+          </li>
+          <li class="flex items-center gap-3 text-sm text-neutral-600">
+            <span class="w-5 h-5 bg-neutral-100 rounded-full flex items-center justify-center text-xs">✓</span>
+            MVT quality verified
+          </li>
+          <li class="flex items-center gap-3 text-sm text-neutral-600">
+            <span class="w-5 h-5 bg-neutral-100 rounded-full flex items-center justify-center text-xs">✓</span>
+            Instant access after purchase
+          </li>
+        </ul>
+      </div>
+
+      <!-- MVT Report -->
+      <% if @product.mvt_report.present? %>
+        <div class="space-y-4 p-6 bg-neutral-50 rounded-xl">
+          <h2 class="text-lg font-medium">Quality Report</h2>
+          <% report = @product.mvt_report %>
+          <div class="grid grid-cols-4 gap-4 text-center">
+            <div>
+              <p class="text-2xl font-light"><%= (report.score_mvt * 100).round %>%</p>
+              <p class="text-xs text-neutral-500">MVT Score</p>
+            </div>
+            <div>
+              <p class="text-2xl font-light text-green-600">✓</p>
+              <p class="text-xs text-neutral-500">Foundations</p>
+            </div>
+            <div>
+              <p class="text-2xl font-light text-green-600">✓</p>
+              <p class="text-xs text-neutral-500">Structure</p>
+            </div>
+            <div>
+              <p class="text-2xl font-light text-green-600">✓</p>
+              <p class="text-xs text-neutral-500">Logic</p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Sidebar - Purchase Card (Airbnb style) - 2 columns -->
+    <div class="lg:col-span-2">
+      <div class="sticky top-24 p-6 border border-neutral-200 rounded-xl shadow-lg">
+        <!-- Price -->
+        <div class="mb-6">
+          <span class="text-3xl font-medium">NT$ <%= number_with_delimiter(@product.price.to_i) %></span>
+        </div>
+
+        <!-- Purchase Button -->
+        <% if user_signed_in? %>
+          <%= button_to "Purchase now",
+              "#",
+              method: :post,
+              class: "w-full py-4 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors mb-4",
+              disabled: true %>
+          <p class="text-xs text-neutral-400 text-center">Payment integration coming soon</p>
+        <% else %>
+          <%= link_to new_user_session_path, class: "block w-full py-4 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors text-center mb-4" do %>
+            Log in to purchase
+          <% end %>
+          <p class="text-xs text-neutral-400 text-center">
+            New here? <%= link_to "Create account", new_user_registration_path, class: "underline" %>
+          </p>
+        <% end %>
+
+        <!-- Trust badges -->
+        <div class="mt-6 pt-6 border-t border-neutral-100 space-y-3">
+          <div class="flex items-center gap-3 text-sm text-neutral-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            Secure payment via ECPay
+          </div>
+          <div class="flex items-center gap-3 text-sm text-neutral-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            Quality verified by MVT
+          </div>
+          <div class="flex items-center gap-3 text-sm text-neutral-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            Instant access
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

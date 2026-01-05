@@ -1,0 +1,69 @@
+<div class="max-w-5xl mx-auto px-6 lg:px-8 py-16">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-12">
+    <div>
+      <h1 class="text-3xl font-light">Your Products</h1>
+      <p class="text-sm text-neutral-500 mt-2"><%= @products.count %> products</p>
+    </div>
+    <%= link_to new_seller_product_path, class: "px-6 py-3 bg-neutral-900 text-white text-sm rounded-full hover:bg-neutral-700 transition-colors" do %>
+      New product
+    <% end %>
+  </div>
+
+  <!-- Products List -->
+  <% if @products.any? %>
+    <div class="space-y-4">
+      <% @products.each do |product| %>
+        <%= link_to seller_product_path(product), class: "block group" do %>
+          <div class="flex items-center gap-6 p-6 border border-neutral-100 rounded-xl hover:border-neutral-300 transition-colors">
+            <!-- Thumbnail -->
+            <div class="w-20 h-20 bg-neutral-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-8 h-8 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-3 mb-1">
+                <h3 class="font-medium group-hover:underline truncate"><%= product.title %></h3>
+                <span class="px-2 py-0.5 text-xs rounded-full
+                  <%= case product.status
+                      when 'draft' then 'bg-neutral-100 text-neutral-600'
+                      when 'pending_review' then 'bg-yellow-50 text-yellow-700'
+                      when 'published' then 'bg-green-50 text-green-700'
+                      when 'rejected' then 'bg-red-50 text-red-700'
+                      end %>">
+                  <%= product.status.humanize %>
+                </span>
+              </div>
+              <p class="text-sm text-neutral-500 truncate"><%= product.description %></p>
+            </div>
+
+            <!-- Price -->
+            <div class="text-right flex-shrink-0">
+              <p class="font-medium">NT$ <%= number_with_delimiter(product.price.to_i) %></p>
+              <p class="text-xs text-neutral-400"><%= product.created_at.strftime('%Y/%m/%d') %></p>
+            </div>
+
+            <!-- Arrow -->
+            <svg class="w-5 h-5 text-neutral-300 group-hover:text-neutral-900 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- Empty State -->
+    <div class="text-center py-24 border border-dashed border-neutral-200 rounded-xl">
+      <svg class="w-12 h-12 mx-auto text-neutral-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+      </svg>
+      <p class="text-neutral-500 mb-6">No products yet</p>
+      <%= link_to new_seller_product_path, class: "inline-block px-6 py-3 bg-neutral-900 text-white text-sm rounded-full hover:bg-neutral-700 transition-colors" do %>
+        Create your first product
+      <% end %>
+    </div>
+  <% end %>
+</div>
