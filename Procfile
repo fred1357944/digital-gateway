@@ -1,2 +1,2 @@
-web: bundle exec puma -C config/puma.rb
-release: bundle exec rails db:migrate
+web: bundle exec puma -C config/puma.rb -p ${PORT:-8080}
+release: bundle exec rails db:prepare
