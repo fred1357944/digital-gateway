@@ -32,6 +32,25 @@
 
 # Ignore key files for decrypting credentials and more.
 /config/*.key
+/config/master.key
+
+# Ignore sensitive files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.yml
+secrets.yml.enc
+
+# Ignore local development files
+/tmp/setup_seller.rb
+
+# Ignore IDE and OS files
+.DS_Store
+.idea/
+*.swp
+*.swo
 
 
 /app/assets/builds/*
