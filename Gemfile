@@ -53,7 +53,7 @@ gem "lockbox"          # Encrypt sensitive data (BYOK API Keys)
 gem "rack-attack"      # Rate limiting & IP blocking
 
 # Background Jobs (using Sidekiq instead of Solid Queue for better features)
-gem "sidekiq", "~> 7.0"
+gem "sidekiq", "~> 8.1"
 gem "redis", "~> 5.0"
 
 # AI Integration (BYOK)
