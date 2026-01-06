@@ -1,9 +1,15 @@
 FactoryBot.define do
   factory :seller_profile do
-    user { nil }
-    status { 1 }
-    store_name { "MyString" }
-    description { "MyText" }
-    discarded_at { "2026-01-05 13:49:39" }
+    user
+    sequence(:store_name) { |n| "Test Store #{n}" }
+    status { :pending }
+
+    trait :verified do
+      status { :verified }
+    end
+
+    trait :suspended do
+      status { :suspended }
+    end
   end
 end

@@ -1,0 +1,15 @@
+Thank you for your purchase!
+
+Hi <%= @user.email.split('@').first %>,
+
+Your order has been confirmed. Here are the details:
+
+Product: <%= @product.title %>
+Amount: NT$ <%= @order.amount.to_i %>
+Order ID: #<%= @order.id %>
+
+Access your content here: <%= order_url(@order) %>
+
+If you have any questions, please reply to this email.
+
+Thank you for choosing Digital Gateway!
