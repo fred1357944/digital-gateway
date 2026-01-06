@@ -1,0 +1,84 @@
+<div class="max-w-2xl mx-auto px-6 lg:px-8 py-16">
+  <!-- Success Header -->
+  <% if @order.paid? %>
+    <div class="text-center mb-12">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-medium mb-2">Purchase Complete</h1>
+      <p class="text-neutral-500">Your content is ready to download</p>
+    </div>
+  <% else %>
+    <div class="text-center mb-12">
+      <h1 class="text-2xl font-medium mb-2">Order Details</h1>
+      <p class="text-neutral-500">Order #<%= @order.id %></p>
+    </div>
+  <% end %>
+
+  <!-- Order Card -->
+  <div class="border border-neutral-200 rounded-xl overflow-hidden">
+    <!-- Product Info -->
+    <div class="p-6 flex items-center gap-4">
+      <div class="w-20 h-20 bg-neutral-100 rounded-lg flex items-center justify-center flex-shrink-0">
+        <svg class="w-10 h-10 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h2 class="font-medium text-lg"><%= @order.product.title %></h2>
+        <p class="text-sm text-neutral-500">by <%= @order.product.seller_profile&.store_name %></p>
+      </div>
+      <div class="text-right">
+        <p class="text-xl font-medium">NT$ <%= number_with_delimiter(@order.amount.to_i) %></p>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="px-6 py-4 bg-neutral-50 border-t border-neutral-200">
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-neutral-500">Status</span>
+        <% case @order.status %>
+        <% when "paid" %>
+          <span class="text-green-600 font-medium">Completed</span>
+        <% when "pending" %>
+          <span class="text-yellow-600 font-medium">Pending Payment</span>
+        <% when "refunded" %>
+          <span class="text-red-600 font-medium">Refunded</span>
+        <% else %>
+          <span class="text-neutral-600"><%= @order.status.humanize %></span>
+        <% end %>
+      </div>
+      <div class="flex items-center justify-between text-sm mt-2">
+        <span class="text-neutral-500">Date</span>
+        <span><%= @order.created_at.strftime("%Y-%m-%d %H:%M") %></span>
+      </div>
+    </div>
+
+    <!-- Download Button -->
+    <% if @order.paid? %>
+      <div class="p-6 border-t border-neutral-200">
+        <%= link_to download_order_path(@order),
+            class: "block w-full py-4 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors text-center" do %>
+          <span class="flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Access Content
+          </span>
+        <% end %>
+        <p class="text-xs text-neutral-400 text-center mt-3">
+          You will be redirected to the content
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Back Link -->
+  <div class="mt-8 text-center">
+    <%= link_to orders_path, class: "text-sm text-neutral-500 hover:text-neutral-900" do %>
+      ← Back to my purchases
+    <% end %>
+  </div>
+</div>

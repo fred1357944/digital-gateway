@@ -11,6 +11,13 @@ Rails.application.routes.draw do
   # Public products
   resources :products, only: %i[index show]
 
+  # Orders (buyer)
+  resources :orders, only: %i[index show create] do
+    member do
+      get :download
+    end
+  end
+
   # Seller namespace
   namespace :seller do
     resources :products do

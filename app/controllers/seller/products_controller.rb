@@ -63,9 +63,20 @@ module Seller
     end
 
     def ensure_seller!
-      unless current_user.seller? && current_seller_profile&.verified?
-        redirect_to root_path, alert: "需要賣家權限"
+      unless current_user.seller? && seller_active?
+        message = if current_seller_profile&.suspended?
+                    "您的賣家帳號已被停權"
+                  elsif current_seller_profile&.pending?
+                    "您的賣家帳號尚在審核中"
+                  else
+                    "需要賣家權限"
+                  end
+        redirect_to root_path, alert: message
       end
+    end
+
+    def seller_active?
+      current_seller_profile&.verified? && !current_seller_profile&.suspended?
     end
 
     def current_seller_profile

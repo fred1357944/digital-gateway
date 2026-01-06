@@ -99,12 +99,20 @@
 
         <!-- Purchase Button -->
         <% if user_signed_in? %>
-          <%= button_to "Purchase now",
-              "#",
-              method: :post,
-              class: "w-full py-4 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors mb-4",
-              disabled: true %>
-          <p class="text-xs text-neutral-400 text-center">Payment integration coming soon</p>
+          <% existing_order = current_user.orders.where(product: @product, status: :paid).first %>
+          <% if existing_order %>
+            <%= link_to download_order_path(existing_order),
+                class: "block w-full py-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors text-center mb-4" do %>
+              Download Content
+            <% end %>
+            <p class="text-xs text-neutral-400 text-center">You already own this product</p>
+          <% else %>
+            <%= button_to "Purchase now",
+                orders_path(product_id: @product.id),
+                method: :post,
+                class: "w-full py-4 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors mb-4" %>
+            <p class="text-xs text-neutral-400 text-center">Instant access after purchase</p>
+          <% end %>
         <% else %>
           <%= link_to new_user_session_path, class: "block w-full py-4 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors text-center mb-4" do %>
             Log in to purchase

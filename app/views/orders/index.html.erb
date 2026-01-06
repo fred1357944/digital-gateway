@@ -1,0 +1,47 @@
+<div class="max-w-4xl mx-auto px-6 lg:px-8 py-16">
+  <h1 class="text-3xl font-light mb-8">My Purchases</h1>
+
+  <% if @orders.present? %>
+    <div class="space-y-4">
+      <% @orders.each do |order| %>
+        <%= link_to order_path(order), class: "block p-6 border border-neutral-200 rounded-xl hover:border-neutral-300 transition-colors" do %>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 bg-neutral-100 rounded-lg flex items-center justify-center">
+                <svg class="w-8 h-8 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-medium"><%= order.product.title %></h3>
+                <p class="text-sm text-neutral-500">
+                  Purchased <%= time_ago_in_words(order.created_at) %> ago
+                </p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-medium">NT$ <%= number_with_delimiter(order.amount.to_i) %></p>
+              <% case order.status %>
+              <% when "paid" %>
+                <span class="text-xs text-green-600">Completed</span>
+              <% when "pending" %>
+                <span class="text-xs text-yellow-600">Pending</span>
+              <% when "refunded" %>
+                <span class="text-xs text-red-600">Refunded</span>
+              <% else %>
+                <span class="text-xs text-neutral-400"><%= order.status.humanize %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-16">
+      <p class="text-neutral-400 mb-6">No purchases yet.</p>
+      <%= link_to products_path, class: "inline-block px-6 py-3 bg-neutral-900 text-white text-sm rounded-full hover:bg-neutral-700 transition-colors" do %>
+        Explore products
+      <% end %>
+    </div>
+  <% end %>
+</div>

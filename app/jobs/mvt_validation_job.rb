@@ -45,12 +45,15 @@ class MvtValidationJob < ApplicationJob
   private
 
   def fetch_content(url)
-    # For now, just return the URL as placeholder
-    # In production, this would fetch and parse the actual content
-    # from Notion, Heptabase, etc.
-    "Content from: #{url}"
-  rescue StandardError => e
+    return nil if url.blank?
+
+    fetcher = ContentFetcher.new(url)
+    fetcher.fetch
+  rescue ContentFetcher::FetchError => e
     Rails.logger.error("Failed to fetch content from #{url}: #{e.message}")
+    nil
+  rescue StandardError => e
+    Rails.logger.error("Unexpected error fetching #{url}: #{e.message}")
     nil
   end
 

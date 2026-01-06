@@ -51,6 +51,9 @@
         <% end %>
       <% end %>
     </div>
+
+    <!-- Pagination -->
+    <%= pagy_tailwind_nav(@pagy) %>
   <% else %>
     <!-- Empty State -->
     <div class="text-center py-32">
