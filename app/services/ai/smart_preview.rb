@@ -10,8 +10,8 @@ module Ai
     end
 
     def generate
-      response = @client.analyze_content(build_content, prompt: build_prompt)
-      result = parse_response(response)
+      api_result = @client.analyze_content(build_content, prompt: build_prompt)
+      result = parse_response(api_result.text)
 
       update_product(result) if result[:success]
       result

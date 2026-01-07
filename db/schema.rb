@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_07_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_07_100003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,6 +49,37 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_000001) do
     t.index ["session_id"], name: "index_ai_conversations_on_session_id"
     t.index ["state"], name: "index_ai_conversations_on_state"
     t.index ["user_id"], name: "index_ai_conversations_on_user_id"
+  end
+
+  create_table "ai_credit_transactions", force: :cascade do |t|
+    t.string "action_type", null: false
+    t.bigint "ai_conversation_id"
+    t.integer "amount", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}
+    t.jsonb "token_usage", default: {}
+    t.bigint "user_id", null: false
+    t.index ["action_type"], name: "index_ai_credit_transactions_on_action_type"
+    t.index ["ai_conversation_id"], name: "index_ai_credit_transactions_on_ai_conversation_id"
+    t.index ["created_at"], name: "index_ai_credit_transactions_on_created_at"
+    t.index ["user_id"], name: "index_ai_credit_transactions_on_user_id"
+  end
+
+  create_table "ai_feedbacks", force: :cascade do |t|
+    t.bigint "ai_conversation_id"
+    t.datetime "created_at", null: false
+    t.string "feedback_type", null: false
+    t.bigint "product_id"
+    t.text "query"
+    t.text "reason"
+    t.text "response_summary"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["ai_conversation_id"], name: "index_ai_feedbacks_on_ai_conversation_id"
+    t.index ["feedback_type"], name: "index_ai_feedbacks_on_feedback_type"
+    t.index ["product_id"], name: "index_ai_feedbacks_on_product_id"
+    t.index ["user_id", "created_at"], name: "index_ai_feedbacks_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_ai_feedbacks_on_user_id"
   end
 
   create_table "mvt_reports", force: :cascade do |t|
@@ -121,6 +152,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_000001) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.integer "ai_credits", default: 100, null: false
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -130,6 +162,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_000001) do
     t.string "reset_password_token"
     t.integer "role"
     t.datetime "updated_at", null: false
+    t.index ["ai_credits"], name: "index_users_on_ai_credits"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -137,6 +170,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_000001) do
   add_foreign_key "access_tokens", "orders"
   add_foreign_key "access_tokens", "users"
   add_foreign_key "ai_conversations", "users"
+  add_foreign_key "ai_credit_transactions", "ai_conversations"
+  add_foreign_key "ai_credit_transactions", "users"
+  add_foreign_key "ai_feedbacks", "ai_conversations"
+  add_foreign_key "ai_feedbacks", "products"
+  add_foreign_key "ai_feedbacks", "users"
   add_foreign_key "mvt_reports", "products"
   add_foreign_key "orders", "products"
   add_foreign_key "orders", "users"

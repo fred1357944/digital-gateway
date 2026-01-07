@@ -62,8 +62,8 @@ module Ai
 
     # Stage 1: 意圖分解（用 Gemini Flash，便宜）
     def decompose_intent
-      response = @client.analyze_content(@query, prompt: intent_decomposition_prompt)
-      json_str = response.gsub(/```json\n?/, "").gsub(/```\n?/, "").strip
+      result = @client.analyze_content(@query, prompt: intent_decomposition_prompt)
+      json_str = result.text.gsub(/```json\n?/, "").gsub(/```\n?/, "").strip
       data = JSON.parse(json_str, symbolize_names: true)
 
       {

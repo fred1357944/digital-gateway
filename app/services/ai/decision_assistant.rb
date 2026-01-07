@@ -11,8 +11,8 @@ module Ai
     end
 
     def analyze
-      response = @client.analyze_content(build_content, prompt: build_prompt)
-      parse_response(response)
+      result = @client.analyze_content(build_content, prompt: build_prompt)
+      parse_response(result.text)
     rescue GeminiClient::ApiError => e
       { success: false, error: e.message }
     end

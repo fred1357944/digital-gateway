@@ -51,8 +51,8 @@ module Ai
           ```
         PROMPT
 
-        response = client.analyze_content("", prompt: prompt)
-        json_str = response.gsub(/```json\n?/, "").gsub(/```\n?/, "").strip
+        result = client.analyze_content("", prompt: prompt)
+        json_str = result.text.gsub(/```json\n?/, "").gsub(/```\n?/, "").strip
         JSON.parse(json_str, symbolize_names: true)
       rescue JSON::ParserError
         { comparison: [], recommendation: "無法生成比較結果" }

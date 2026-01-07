@@ -18,13 +18,15 @@ module Ai
           只回覆摘要，不要其他文字。
         PROMPT
 
-        summary = client.analyze_content("", prompt: prompt)
+        result = client.analyze_content("", prompt: prompt)
+        summary = result.text
 
         {
           success: true,
           summary: summary.strip,
           original_length: content.length,
-          summary_length: summary.length
+          summary_length: summary.length,
+          token_usage: { input_tokens: result.input_tokens, output_tokens: result.output_tokens }
         }
       rescue StandardError => e
         { success: false, error: e.message }

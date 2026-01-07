@@ -7,6 +7,11 @@ module Ai
   # - :economy  → 分層架構，成本最佳化（Workflow + Meta-Agent）
   # - :premium  → 原始服務，品質最佳化（直接呼叫 Gemini）
   #
+  # 整合功能：
+  # - 使用量追蹤 (UsageService)
+  # - 速率限制 (RateLimiter)
+  # - BYOK 支援
+  #
   # 使用方式：
   #   Ai::Service.search("找 Rails 課程", mode: :economy)
   #   Ai::Service.search("找 Rails 課程", mode: :premium)
@@ -17,64 +22,86 @@ module Ai
     class << self
       # 智慧搜尋
       def search(query, user: nil, mode: :auto)
-        mode = resolve_mode(mode, query)
+        with_usage_tracking(user, :search) do
+          mode = resolve_mode(mode, query)
 
-        case mode
-        when :economy
-          economy_search(query, user)
-        when :premium
-          premium_search(query, user)
+          case mode
+          when :economy
+            economy_search(query, user)
+          when :premium
+            premium_search(query, user)
+          end
         end
       end
 
       # 需求探索（多輪對話）
       def explore(query, user: nil, session_id: nil)
-        conversation = AiConversation.find_or_create_for_session(
-          session_id || SecureRandom.uuid,
-          user: user
-        )
+        with_usage_tracking(user, :explore) do
+          conversation = AiConversation.find_or_create_for_session(
+            session_id || SecureRandom.uuid,
+            user: user
+          )
 
-        service = DemandExplorerService.new(
-          user: user,
-          api_key: user&.gemini_api_key,
-          conversation: conversation
-        )
+          service = DemandExplorerService.new(
+            user: user,
+            api_key: user&.gemini_api_key,
+            conversation: conversation
+          )
 
-        result = service.explore(query)
-        wrap_result(result, :economy, "explore")
+          result = service.explore(query)
+          wrap_result(result, :economy, "explore")
+        end
       end
 
       # 商品比較
       def compare(product_ids, user: nil, mode: :auto)
-        mode = resolve_mode(mode, "compare")
+        with_usage_tracking(user, :compare) do
+          mode = resolve_mode(mode, "compare")
 
-        case mode
-        when :economy
-          economy_compare(product_ids, user)
-        when :premium
-          premium_compare(product_ids, user)
+          case mode
+          when :economy
+            economy_compare(product_ids, user)
+          when :premium
+            premium_compare(product_ids, user)
+          end
         end
       end
 
       # 智慧預覽
       def preview(product, user: nil, mode: :premium)
-        # 預覽通常需要高品質，預設用 premium
-        case mode
-        when :economy
-          economy_preview(product, user)
-        when :premium
-          premium_preview(product, user)
+        with_usage_tracking(user, :smart_preview) do
+          # 預覽通常需要高品質，預設用 premium
+          case mode
+          when :economy
+            economy_preview(product, user)
+          when :premium
+            premium_preview(product, user)
+          end
         end
       end
 
       # 購買決策
       def decide(products, context: {}, user: nil, mode: :premium)
-        case mode
-        when :economy
-          economy_decide(products, context, user)
-        when :premium
-          premium_decide(products, context, user)
+        with_usage_tracking(user, :decision_assist) do
+          case mode
+          when :economy
+            economy_decide(products, context, user)
+          when :premium
+            premium_decide(products, context, user)
+          end
         end
+      end
+
+      # 取得用戶使用量統計
+      def usage_stats(user)
+        return {} unless user
+        UsageService.new(user).usage_stats
+      end
+
+      # 檢查用戶是否可執行操作
+      def can_execute?(user, action_type)
+        return { allowed: true, byok: false } unless user
+        UsageService.new(user).can_execute?(action_type)
       end
 
       # 取得模式資訊
@@ -198,6 +225,53 @@ module Ai
             timestamp: Time.current
           }
         )
+      end
+
+      # 整合使用量追蹤和速率限制
+      def with_usage_tracking(user, action_type)
+        return yield unless user
+
+        # 1. 速率限制檢查
+        rate_limiter = RateLimiter.new(user)
+        rate_limiter.check!
+
+        # 2. 點數檢查
+        usage_service = UsageService.new(user)
+        usage_service.check_and_reserve!(action_type)
+
+        # 3. 執行操作
+        result = yield
+
+        # 4. 記錄使用量並扣點
+        token_usage = extract_token_usage(result)
+        usage_result = usage_service.record_usage(
+          action_type: action_type,
+          token_usage: token_usage
+        )
+
+        # 5. 增加速率計數
+        rate_limiter.increment!
+
+        # 6. 合併使用量資訊到結果
+        if result.is_a?(Hash)
+          result.merge(_usage: usage_result)
+        else
+          result
+        end
+      rescue UsageService::InsufficientCreditsError => e
+        { success: false, error: e.message, error_type: :insufficient_credits }
+      rescue RateLimiter::RateLimitExceeded => e
+        { success: false, error: e.message, error_type: :rate_limit_exceeded, reset_at: e.reset_at }
+      end
+
+      def extract_token_usage(result)
+        return {} unless result.is_a?(Hash)
+
+        # 嘗試從不同位置提取 token 用量
+        result[:token_usage] ||
+          result.dig(:meta, :token_usage) ||
+          result.dig(:_meta, :token_usage) ||
+          {}
       end
     end
   end

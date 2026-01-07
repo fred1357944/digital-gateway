@@ -200,6 +200,15 @@
           <%= render 'shared/product_card', product: product %>
         <% end %>
       </div>
+
+      <!-- Feedback Buttons -->
+      <% if user_signed_in? %>
+        <div class="mt-8 pt-6 border-t border-neutral-200">
+          <%= render 'ai/feedbacks/feedback_buttons',
+              query: @query,
+              response_summary: @explanation %>
+        </div>
+      <% end %>
     <% else %>
       <!-- No Results -->
       <div class="text-center py-16">

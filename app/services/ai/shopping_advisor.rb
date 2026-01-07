@@ -37,8 +37,8 @@ module Ai
     private
 
     def parse_intent
-      response = @client.analyze_content(@query, prompt: intent_prompt)
-      json_str = response.gsub(/```json\n?/, "").gsub(/```\n?/, "").strip
+      result = @client.analyze_content(@query, prompt: intent_prompt)
+      json_str = result.text.gsub(/```json\n?/, "").gsub(/```\n?/, "").strip
       data = JSON.parse(json_str, symbolize_names: true)
 
       {

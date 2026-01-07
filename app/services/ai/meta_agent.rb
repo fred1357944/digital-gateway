@@ -71,8 +71,8 @@ module Ai
 
     # 創建執行計畫
     def create_execution_plan
-      response = @client.analyze_content(@query, prompt: planning_prompt)
-      json_str = response.gsub(/```json\n?/, "").gsub(/```\n?/, "").strip
+      result = @client.analyze_content(@query, prompt: planning_prompt)
+      json_str = result.text.gsub(/```json\n?/, "").gsub(/```\n?/, "").strip
       data = JSON.parse(json_str, symbolize_names: true)
 
       {

@@ -23,12 +23,12 @@ module Ai
     def extract(query, context: nil)
       return empty_result if query.blank?
 
-      response = @client.analyze_content(
+      result = @client.analyze_content(
         build_input(query, context),
         prompt: extraction_prompt
       )
 
-      parse_response(response)
+      parse_response(result.text)
     rescue GeminiClient::ApiError => e
       Rails.logger.error "[SlotExtractor] API Error: #{e.message}"
       fallback_extraction(query)

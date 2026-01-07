@@ -2,9 +2,17 @@
 
 # Gemini API 客戶端
 # 支援系統級 API Key 和使用者自帶 API Key (BYOK)
+# 回傳 Result 物件包含生成文字與 Token 用量
 class GeminiClient
   class ConfigurationError < StandardError; end
   class ApiError < StandardError; end
+
+  # Result 物件：包含生成的文字與 Token 用量
+  Result = Struct.new(:text, :input_tokens, :output_tokens, :total_tokens, keyword_init: true) do
+    def to_h
+      { text: text, input_tokens: input_tokens, output_tokens: output_tokens, total_tokens: total_tokens }
+    end
+  end
 
   DEFAULT_MODEL = "gemini-2.0-flash"
   MAX_CONTENT_LENGTH = 10_000 # 限制輸入長度
@@ -14,6 +22,7 @@ class GeminiClient
     validate_api_key!
   end
 
+  # @return [GeminiClient::Result] 包含 text 和 token 用量
   def analyze_content(content, prompt:, json_mode: false)
     # 安全處理：清洗 HTML 和限制長度
     sanitized_content = sanitize_input(content)
@@ -34,7 +43,7 @@ class GeminiClient
       generation_config: generation_config
     })
 
-    extract_text(response)
+    extract_result(response)
   rescue Gemini::Error => e
     raise ApiError, "Gemini API 錯誤: #{e.message}"
   end
@@ -85,8 +94,20 @@ class GeminiClient
       只回覆 JSON，不要其他文字。
     PROMPT
 
-    response = analyze_content(content, prompt: prompt)
-    parse_mvt_response(response)
+    # 取得 Result (含 Tokens)
+    result = analyze_content(content, prompt: prompt)
+
+    # 解析 JSON
+    parsed_json = parse_mvt_response(result.text)
+
+    # 將 Token 資訊合併回傳
+    parsed_json.merge(
+      meta: {
+        input_tokens: result.input_tokens,
+        output_tokens: result.output_tokens,
+        total_tokens: result.total_tokens
+      }
+    )
   end
 
   private
@@ -117,8 +138,17 @@ class GeminiClient
              .gsub(/system\s*:\s*/i, "[BLOCKED]")
   end
 
-  def extract_text(response)
-    response.dig("candidates", 0, "content", "parts", 0, "text") || ""
+  # 從 API 回應提取 Result 物件 (含 text + token 用量)
+  def extract_result(response)
+    text = response.dig("candidates", 0, "content", "parts", 0, "text") || ""
+    usage = response["usageMetadata"] || {}
+
+    Result.new(
+      text: text,
+      input_tokens: usage["promptTokenCount"] || 0,
+      output_tokens: usage["candidatesTokenCount"] || 0,
+      total_tokens: usage["totalTokenCount"] || 0
+    )
   end
 
   def parse_mvt_response(response)

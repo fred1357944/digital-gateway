@@ -215,8 +215,8 @@ module Ai
       inventory = serialize_inventory(candidates)
       prompt = build_recommendation_prompt(slots, original_query)
 
-      response = @client.analyze_content(inventory, prompt: prompt)
-      parse_recommendation(response, candidates)
+      result = @client.analyze_content(inventory, prompt: prompt)
+      parse_recommendation(result.text, candidates, result)
     rescue JSON::ParserError => e
       Rails.logger.error "[DemandExplorer] Parse error: #{e.message}"
       fallback_recommendation(candidates, slots)
@@ -269,7 +269,7 @@ module Ai
       PROMPT
     end
 
-    def parse_recommendation(response, candidates)
+    def parse_recommendation(response, candidates, result = nil)
       json_str = response.gsub(/```json\n?/, "").gsub(/```\n?/, "").strip
       data = JSON.parse(json_str, symbolize_names: true)
 
@@ -279,11 +279,19 @@ module Ai
       # 保持推薦順序
       products = recommended_ids.map { |id| products.find { |p| p.id == id } }.compact
 
+      # Token 用量
+      token_usage = if result
+        { input_tokens: result.input_tokens, output_tokens: result.output_tokens, total_tokens: result.total_tokens }
+      else
+        {}
+      end
+
       {
         products: products.take(MAX_LLM_RESULTS),
         explanation: data[:explanation] || "為您推薦以下課程",
         intent: data[:intent] || {},
-        cost_estimate: { estimated_cost_usd: 0.001 }
+        cost_estimate: { estimated_cost_usd: 0.001 },
+        token_usage: token_usage
       }
     end
 

@@ -22,6 +22,12 @@ Rails.application.routes.draw do
   namespace :ai do
     get "search", to: "search#index"
 
+    # AI 反饋
+    resources :feedbacks, only: :create
+
+    # 使用量統計
+    get "usage", to: "usage#show"
+
     resources :products, only: [] do
       resource :preview, only: :create
       resource :decision, only: :create
