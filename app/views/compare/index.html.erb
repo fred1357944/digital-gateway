@@ -1,0 +1,156 @@
+<% content_for :title, "商品比較 - Digital Gateway" %>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-neutral-900">商品比較</h1>
+    <p class="mt-2 text-neutral-600">多維度分析，找出最適合你的選擇</p>
+  </div>
+
+  <% if @products.any? %>
+    <div class="grid lg:grid-cols-2 gap-8">
+      <!-- Pareto Radar Chart -->
+      <div>
+        <%= render 'shared/pareto_radar',
+            products: @products,
+            title: "多目標最佳化比較" %>
+      </div>
+
+      <!-- Category Winners -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
+        <h3 class="text-lg font-semibold text-neutral-900 mb-4">各維度最佳</h3>
+
+        <% if @categories.present? %>
+          <div class="space-y-4">
+            <% @categories.each do |key, data| %>
+              <div class="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl">
+                    <%= category_icon(key) %>
+                  </span>
+                  <div>
+                    <p class="font-medium text-neutral-900"><%= data[:label] %></p>
+                    <p class="text-sm text-neutral-500"><%= data[:product].title.truncate(30) %></p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-lg font-semibold text-neutral-900"><%= data[:score].round %>分</span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Product Comparison Table -->
+    <div class="mt-8 bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
+      <div class="p-6 border-b border-neutral-100">
+        <h3 class="text-lg font-semibold text-neutral-900">詳細比較</h3>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-neutral-50">
+            <tr>
+              <th class="px-6 py-4 text-left text-sm font-medium text-neutral-500">項目</th>
+              <% @products.each do |product| %>
+                <th class="px-6 py-4 text-center text-sm font-medium text-neutral-900">
+                  <%= product.title.truncate(20) %>
+                </th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-neutral-100">
+            <tr>
+              <td class="px-6 py-4 text-sm text-neutral-500">價格</td>
+              <% @products.each do |product| %>
+                <td class="px-6 py-4 text-center text-sm font-medium">
+                  NT$ <%= number_with_delimiter(product.price.to_i) %>
+                </td>
+              <% end %>
+            </tr>
+            <tr class="bg-neutral-50">
+              <td class="px-6 py-4 text-sm text-neutral-500">價格效益</td>
+              <% @products.each do |product| %>
+                <td class="px-6 py-4 text-center">
+                  <%= score_badge(product.product_score&.price_score) %>
+                </td>
+              <% end %>
+            </tr>
+            <tr>
+              <td class="px-6 py-4 text-sm text-neutral-500">品質評分</td>
+              <% @products.each do |product| %>
+                <td class="px-6 py-4 text-center">
+                  <%= score_badge(product.product_score&.quality_score) %>
+                </td>
+              <% end %>
+            </tr>
+            <tr class="bg-neutral-50">
+              <td class="px-6 py-4 text-sm text-neutral-500">交付速度</td>
+              <% @products.each do |product| %>
+                <td class="px-6 py-4 text-center">
+                  <%= score_badge(product.product_score&.speed_score) %>
+                </td>
+              <% end %>
+            </tr>
+            <tr>
+              <td class="px-6 py-4 text-sm text-neutral-500">賣家信譽</td>
+              <% @products.each do |product| %>
+                <td class="px-6 py-4 text-center">
+                  <%= score_badge(product.product_score&.reputation_score) %>
+                </td>
+              <% end %>
+            </tr>
+            <tr class="bg-neutral-50">
+              <td class="px-6 py-4 text-sm text-neutral-500">操作</td>
+              <% @products.each do |product| %>
+                <td class="px-6 py-4 text-center">
+                  <%= link_to "查看",
+                      product_path(product),
+                      class: "inline-flex items-center px-4 py-2 bg-neutral-900 text-white text-sm font-medium rounded-full hover:bg-neutral-800 transition-colors" %>
+                </td>
+              <% end %>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AI Insight (placeholder) -->
+    <div class="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+        <div>
+          <h4 class="font-semibold text-neutral-900">AI 分析建議</h4>
+          <p class="mt-1 text-neutral-600">
+            這些商品都是 Pareto 最優解，沒有絕對的優劣之分。
+            <% if @categories[:balanced].present? %>
+              如果您追求均衡，推薦「<%= @categories[:balanced][:product].title.truncate(20) %>」；
+            <% end %>
+            <% if @categories[:price].present? %>
+              如果您重視性價比，推薦「<%= @categories[:price][:product].title.truncate(20) %>」。
+            <% end %>
+          </p>
+          <p class="mt-2 text-sm text-neutral-500">
+            * AI 深度分析功能即將推出 (Gemini 整合)
+          </p>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-2xl p-12 text-center">
+      <svg class="w-16 h-16 mx-auto text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      <h3 class="mt-4 text-lg font-medium text-neutral-900">尚未選擇商品</h3>
+      <p class="mt-2 text-neutral-500">請先從商品列表選擇要比較的商品</p>
+      <%= link_to "瀏覽商品",
+          products_path,
+          class: "mt-4 inline-flex items-center px-6 py-3 bg-neutral-900 text-white font-medium rounded-full hover:bg-neutral-800 transition-colors" %>
+    </div>
+  <% end %>
+</div>

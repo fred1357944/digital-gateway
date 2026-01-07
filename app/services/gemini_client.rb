@@ -7,22 +7,31 @@ class GeminiClient
   class ApiError < StandardError; end
 
   DEFAULT_MODEL = "gemini-2.0-flash"
+  MAX_CONTENT_LENGTH = 10_000 # 限制輸入長度
 
   def initialize(api_key: nil)
     @api_key = api_key || ENV["GEMINI_API_KEY"]
     validate_api_key!
   end
 
-  def analyze_content(content, prompt:)
+  def analyze_content(content, prompt:, json_mode: false)
+    # 安全處理：清洗 HTML 和限制長度
+    sanitized_content = sanitize_input(content)
+
+    generation_config = {
+      temperature: 0.3,
+      max_output_tokens: 2048
+    }
+
+    # JSON Mode (Gemini 1.5+ 支援)
+    generation_config[:response_mime_type] = "application/json" if json_mode
+
     response = client.generate_content({
       contents: {
         role: "user",
-        parts: [{ text: "#{prompt}\n\n---\n\n#{content}" }]
+        parts: [{ text: "#{prompt}\n\n---\n\n#{sanitized_content}" }]
       },
-      generation_config: {
-        temperature: 0.3,
-        max_output_tokens: 2048
-      }
+      generation_config: generation_config
     })
 
     extract_text(response)
@@ -91,6 +100,21 @@ class GeminiClient
 
   def validate_api_key!
     raise ConfigurationError, "未設定 Gemini API Key" if @api_key.blank?
+  end
+
+  # 清洗輸入內容，防止注入攻擊
+  def sanitize_input(content)
+    return "" if content.blank?
+
+    # 移除 HTML 標籤
+    sanitized = ActionController::Base.helpers.strip_tags(content.to_s)
+
+    # 限制長度
+    sanitized = sanitized.truncate(MAX_CONTENT_LENGTH) if sanitized.length > MAX_CONTENT_LENGTH
+
+    # 移除潛在的 prompt injection 指令
+    sanitized.gsub(/ignore\s+(all\s+)?previous\s+instructions?/i, "[BLOCKED]")
+             .gsub(/system\s*:\s*/i, "[BLOCKED]")
   end
 
   def extract_text(response)

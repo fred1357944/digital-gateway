@@ -25,6 +25,9 @@ gem "jbuilder"
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
+# Load environment variables from .env
+gem "dotenv-rails", groups: [:development, :test]
+
 # NOTE: solid_cache, solid_queue, solid_cable removed for simple single-database deployment
 # Using memory_store for cache and async adapter for jobs instead
 

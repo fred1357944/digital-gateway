@@ -1,0 +1,111 @@
+<%# AI 智慧預覽區塊 %>
+<div id="ai-preview-<%= product.id %>" class="space-y-6">
+  <% if product.ai_enhanced? %>
+    <!-- AI 摘要 -->
+    <div class="p-4 bg-purple-50 rounded-xl border border-purple-100">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-purple-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+        </span>
+        <span class="text-sm font-medium text-purple-800">AI 智慧分析</span>
+      </div>
+      <p class="text-neutral-700"><%= product.ai_summary %></p>
+    </div>
+
+    <!-- 核心賣點 -->
+    <% if product.ai_key_benefits.any? %>
+      <div class="space-y-2">
+        <h4 class="text-sm font-medium text-neutral-500">核心賣點</h4>
+        <ul class="space-y-2">
+          <% product.ai_key_benefits.each do |benefit| %>
+            <li class="flex items-start gap-2 text-sm">
+              <span class="text-green-500 mt-0.5">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+              <span class="text-neutral-700"><%= benefit %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- 章節大綱 -->
+    <% if product.ai_outline.any? %>
+      <div class="space-y-3">
+        <h4 class="text-sm font-medium text-neutral-500">課程大綱</h4>
+        <div class="space-y-2">
+          <% product.ai_outline.each_with_index do |chapter, index| %>
+            <div class="flex gap-3 p-3 bg-neutral-50 rounded-lg">
+              <span class="flex-shrink-0 w-6 h-6 bg-neutral-200 text-neutral-600 rounded-full flex items-center justify-center text-xs font-medium">
+                <%= index + 1 %>
+              </span>
+              <div>
+                <p class="font-medium text-sm text-neutral-900"><%= chapter["chapter"] || chapter[:chapter] %></p>
+                <p class="text-xs text-neutral-500 mt-0.5"><%= chapter["description"] || chapter[:description] %></p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- 適合人群 -->
+    <% if product.ai_target_audience.any? %>
+      <div class="space-y-3">
+        <h4 class="text-sm font-medium text-neutral-500">適合人群</h4>
+        <div class="grid grid-cols-2 gap-2">
+          <% product.ai_target_audience.each do |audience| %>
+            <% is_suitable = (audience["type"] || audience[:type]) == "適合" %>
+            <div class="flex items-center gap-2 text-sm p-2 rounded-lg <%= is_suitable ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700' %>">
+              <% if is_suitable %>
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              <% else %>
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+              <% end %>
+              <span><%= audience["description"] || audience[:description] %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- 難度與時數 -->
+    <div class="flex items-center gap-4 text-sm text-neutral-500 pt-2 border-t border-neutral-100">
+      <% if product.ai_metadata["difficulty"] %>
+        <span class="flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          難度：<%= product.ai_metadata["difficulty"] %>
+        </span>
+      <% end %>
+      <% if product.ai_metadata["estimated_hours"] %>
+        <span class="flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          預估 <%= product.ai_metadata["estimated_hours"] %> 小時
+        </span>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="p-6 bg-neutral-50 rounded-xl text-center">
+      <p class="text-sm text-neutral-500 mb-3">尚未生成 AI 智慧預覽</p>
+      <% if defined?(can_generate) && can_generate %>
+        <%= button_to "生成 AI 預覽",
+            ai_product_preview_path(product),
+            method: :post,
+            class: "px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors",
+            data: { turbo_frame: "ai-preview-#{product.id}" } %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

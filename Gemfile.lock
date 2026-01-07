@@ -115,6 +115,9 @@ GEM
     discard (1.4.0)
       activerecord (>= 4.2, < 9.0)
     dotenv (3.2.0)
+    dotenv-rails (3.2.0)
+      dotenv (= 3.2.0)
+      railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
     erb (6.0.1)
@@ -488,6 +491,7 @@ DEPENDENCIES
   debug
   devise
   discard
+  dotenv-rails
   factory_bot_rails
   faker
   gemini-ai (~> 4.0)

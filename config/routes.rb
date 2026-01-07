@@ -11,6 +11,23 @@ Rails.application.routes.draw do
   # Public products
   resources :products, only: %i[index show]
 
+  # Smart commerce features
+  resources :compare, only: %i[index show] do
+    collection do
+      get :pareto
+    end
+  end
+
+  # AI 智慧功能
+  namespace :ai do
+    get "search", to: "search#index"
+
+    resources :products, only: [] do
+      resource :preview, only: :create
+      resource :decision, only: :create
+    end
+  end
+
   # Orders (buyer)
   resources :orders, only: %i[index show create] do
     member do

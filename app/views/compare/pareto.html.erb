@@ -1,0 +1,135 @@
+<% content_for :title, "Pareto 最佳化推薦 - Digital Gateway" %>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-neutral-900">智慧推薦</h1>
+    <p class="mt-2 text-neutral-600">基於多目標最佳化的 Pareto 最優解</p>
+  </div>
+
+  <% if @state_info.present? %>
+    <!-- ESE State Info -->
+    <div class="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-100">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <%= state_icon(@state_info[:state]) %>
+        </div>
+        <div>
+          <h4 class="font-semibold text-neutral-900"><%= @state_info[:description] %></h4>
+          <p class="mt-1 text-neutral-600"><%= @state_info[:suggestion] %></p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="grid lg:grid-cols-3 gap-8">
+    <!-- Pareto Front Products -->
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold text-neutral-900">Pareto 最優商品</h2>
+          <span class="text-sm text-neutral-500">
+            共 <%= @pareto_products.size %> 個非支配解
+          </span>
+        </div>
+
+        <% if @pareto_products.any? %>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <% @pareto_products.each_with_index do |product, index| %>
+              <div class="group relative bg-neutral-50 rounded-xl p-4 hover:bg-neutral-100 transition-colors">
+                <!-- Rank Badge -->
+                <div class="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+                     style="background-color: <%= radar_color(index, 0.2) %>; color: <%= radar_color(index) %>;">
+                  #<%= index + 1 %>
+                </div>
+
+                <h3 class="font-medium text-neutral-900 pr-8">
+                  <%= link_to product.title.truncate(35), product_path(product), class: "hover:underline" %>
+                </h3>
+
+                <p class="mt-1 text-lg font-semibold text-neutral-900">
+                  NT$ <%= number_with_delimiter(product.price.to_i) %>
+                </p>
+
+                <% if product.product_score %>
+                  <div class="mt-3 flex flex-wrap gap-1">
+                    <% product.product_score.scores.each do |key, value| %>
+                      <span class="text-xs px-2 py-0.5 rounded-full bg-white border border-neutral-200">
+                        <%= objective_label(key) %>: <%= value %>
+                      </span>
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <div class="mt-3 flex gap-2">
+                  <%= link_to product_path(product),
+                      class: "flex-1 text-center py-2 text-sm font-medium text-neutral-700 bg-white rounded-lg border border-neutral-200 hover:border-neutral-300 transition-colors" do %>
+                    查看詳情
+                  <% end %>
+                  <%= button_to orders_path(product_id: product.id),
+                      method: :post,
+                      class: "flex-1 text-center py-2 text-sm font-medium text-white bg-neutral-900 rounded-lg hover:bg-neutral-800 transition-colors" do %>
+                    立即購買
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-center text-neutral-500 py-8">暫無商品</p>
+        <% end %>
+      </div>
+
+      <!-- Pareto Radar -->
+      <div class="mt-8">
+        <%= render 'shared/pareto_radar',
+            products: @pareto_products.first(5),
+            title: "Pareto 前沿視覺化" %>
+      </div>
+    </div>
+
+    <!-- Category Winners Sidebar -->
+    <div class="space-y-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6">
+        <h3 class="text-lg font-semibold text-neutral-900 mb-4">各維度冠軍</h3>
+
+        <% if @categories.present? %>
+          <div class="space-y-3">
+            <% @categories.each do |key, data| %>
+              <div class="p-3 bg-neutral-50 rounded-xl">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-xl"><%= category_icon(key) %></span>
+                  <span class="font-medium text-neutral-900"><%= data[:label] %></span>
+                </div>
+                <%= link_to product_path(data[:product]), class: "block hover:opacity-80 transition-opacity" do %>
+                  <p class="text-sm text-neutral-600 truncate"><%= data[:product].title %></p>
+                  <p class="text-xs text-neutral-400 mt-1">得分：<%= data[:score].round %>分</p>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Info Card -->
+      <div class="bg-neutral-900 text-white rounded-2xl p-6">
+        <h3 class="font-semibold mb-3">什麼是 Pareto 最優？</h3>
+        <p class="text-sm text-neutral-300 leading-relaxed">
+          Pareto 最優解是指在所有目標中，沒有任何其他解能在不犧牲任何目標的情況下做得更好。
+        </p>
+        <p class="text-sm text-neutral-300 leading-relaxed mt-3">
+          這些商品各有優勢，沒有絕對的「最好」，只有最適合你需求的選擇。
+        </p>
+        <div class="mt-4 pt-4 border-t border-neutral-700">
+          <p class="text-xs text-neutral-400">
+            靈感來源：Jellyfish 多目標最佳化引擎
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="mt-8">
+    <%== pagy_tailwind_nav(@pagy) %>
+  </div>
+</div>

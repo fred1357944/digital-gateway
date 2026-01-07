@@ -7,6 +7,7 @@ class Product < ApplicationRecord
   belongs_to :seller_profile
   has_many :orders, dependent: :restrict_with_error
   has_one :mvt_report, dependent: :destroy
+  has_one :product_score, dependent: :destroy
 
   # Product status state machine
   aasm column: :status, enum: true do
@@ -44,7 +45,9 @@ class Product < ApplicationRecord
 
   # Scopes
   scope :available, -> { kept.published }
+  scope :active, -> { kept.published }  # Alias for smart commerce
   scope :by_seller, ->(seller_profile_id) { where(seller_profile_id: seller_profile_id) }
+  scope :with_scores, -> { includes(:product_score).where.not(product_scores: { id: nil }) }
 
   # Delegate seller info
   delegate :store_name, to: :seller_profile, prefix: true
@@ -52,6 +55,31 @@ class Product < ApplicationRecord
 
   def mvt_viable?
     mvt_report&.viable?
+  end
+
+  # AI Metadata accessors
+  def ai_summary
+    ai_metadata["summary"]
+  end
+
+  def ai_target_audience
+    ai_metadata["target_audience"] || []
+  end
+
+  def ai_outline
+    ai_metadata["outline"] || []
+  end
+
+  def ai_key_benefits
+    ai_metadata["key_benefits"] || []
+  end
+
+  def ai_enhanced?
+    ai_metadata.present? && ai_metadata["summary"].present?
+  end
+
+  def ai_generated_at
+    ai_metadata["generated_at"]&.to_datetime
   end
 
   # Infer content type from URL extension or return default

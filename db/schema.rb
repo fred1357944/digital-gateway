@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_05_055006) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_07_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,6 +27,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_055006) do
     t.index ["order_id"], name: "index_access_tokens_on_order_id"
     t.index ["token"], name: "index_access_tokens_on_token"
     t.index ["user_id"], name: "index_access_tokens_on_user_id"
+  end
+
+  create_table "ai_conversations", force: :cascade do |t|
+    t.text "context_summary"
+    t.datetime "created_at", null: false
+    t.decimal "estimated_cost_usd", precision: 10, scale: 6, default: "0.0"
+    t.string "last_query"
+    t.jsonb "last_result", default: {}
+    t.jsonb "missing_slots", default: [], null: false
+    t.jsonb "recent_messages", default: [], null: false
+    t.string "session_id", null: false
+    t.jsonb "slots", default: {}, null: false
+    t.string "state", default: "gathering", null: false
+    t.integer "total_input_tokens", default: 0
+    t.integer "total_output_tokens", default: 0
+    t.integer "turn_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["created_at"], name: "index_ai_conversations_on_created_at"
+    t.index ["session_id"], name: "index_ai_conversations_on_session_id"
+    t.index ["state"], name: "index_ai_conversations_on_state"
+    t.index ["user_id"], name: "index_ai_conversations_on_user_id"
   end
 
   create_table "mvt_reports", force: :cascade do |t|
@@ -53,7 +75,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_055006) do
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
+  create_table "product_scores", force: :cascade do |t|
+    t.datetime "calculated_at"
+    t.string "calculation_version", default: "1.0"
+    t.datetime "created_at", null: false
+    t.integer "price_score", default: 50, null: false
+    t.bigint "product_id", null: false
+    t.integer "quality_score", default: 50, null: false
+    t.integer "relevance_score", default: 50, null: false
+    t.integer "reputation_score", default: 50, null: false
+    t.integer "speed_score", default: 50, null: false
+    t.datetime "updated_at", null: false
+    t.index ["price_score"], name: "index_product_scores_on_price_score"
+    t.index ["product_id"], name: "index_product_scores_on_product_id", unique: true
+    t.index ["quality_score"], name: "index_product_scores_on_quality_score"
+  end
+
   create_table "products", force: :cascade do |t|
+    t.jsonb "ai_metadata", default: {}, null: false
     t.string "content_url"
     t.datetime "created_at", null: false
     t.text "description"
@@ -64,6 +103,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_055006) do
     t.integer "status"
     t.string "title"
     t.datetime "updated_at", null: false
+    t.index ["ai_metadata"], name: "index_products_on_ai_metadata", using: :gin
     t.index ["discarded_at"], name: "index_products_on_discarded_at"
     t.index ["seller_profile_id"], name: "index_products_on_seller_profile_id"
   end
@@ -96,9 +136,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_055006) do
 
   add_foreign_key "access_tokens", "orders"
   add_foreign_key "access_tokens", "users"
+  add_foreign_key "ai_conversations", "users"
   add_foreign_key "mvt_reports", "products"
   add_foreign_key "orders", "products"
   add_foreign_key "orders", "users"
+  add_foreign_key "product_scores", "products"
   add_foreign_key "products", "seller_profiles"
   add_foreign_key "seller_profiles", "users"
 end

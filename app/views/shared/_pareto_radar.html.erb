@@ -1,0 +1,117 @@
+<%#
+  Pareto Radar Chart Component
+
+  Usage:
+    <%= render 'shared/pareto_radar',
+        products: @products,
+        title: "商品比較",
+        show_legend: true %>
+
+  Expected product format:
+    {
+      id: 1,
+      title: "Product Name",
+      scores: {
+        price: 85,      # 0-100
+        quality: 70,    # 0-100
+        speed: 90,      # 0-100
+        reputation: 75, # 0-100
+        relevance: 80   # 0-100
+      }
+    }
+%>
+
+<% products ||= [] %>
+<% title ||= "多維度比較" %>
+<% show_legend ||= true %>
+<% objectives ||= [
+  { key: "price", label: "價格效益" },
+  { key: "quality", label: "品質評分" },
+  { key: "speed", label: "交付速度" },
+  { key: "reputation", label: "賣家信譽" },
+  { key: "relevance", label: "相關性" }
+] %>
+
+<%
+  # Transform products for JS
+  products_data = products.map do |p|
+    if p.respond_to?(:product_score) && p.product_score
+      {
+        id: p.id,
+        title: p.title,
+        scores: {
+          price: p.product_score.price_score,
+          quality: p.product_score.quality_score,
+          speed: p.product_score.speed_score,
+          reputation: p.product_score.reputation_score,
+          relevance: p.product_score.relevance_score
+        }
+      }
+    elsif p.is_a?(Hash)
+      p
+    else
+      # Generate demo scores if no product_score exists
+      {
+        id: p.respond_to?(:id) ? p.id : rand(1000),
+        title: p.respond_to?(:title) ? p.title : "Product",
+        scores: {
+          price: rand(60..95),
+          quality: rand(60..95),
+          speed: rand(60..95),
+          reputation: rand(60..95),
+          relevance: rand(60..95)
+        }
+      }
+    end
+  end
+%>
+
+<div data-controller="pareto-radar"
+     data-pareto-radar-products-value="<%= products_data.to_json %>"
+     data-pareto-radar-objectives-value="<%= objectives.to_json %>"
+     class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
+
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-semibold text-neutral-900"><%= title %></h3>
+    <% if products.size > 0 %>
+      <span class="text-sm text-neutral-500">
+        比較 <%= products.size %> 項商品
+      </span>
+    <% end %>
+  </div>
+
+  <% if products.empty? %>
+    <div class="flex flex-col items-center justify-center py-12 text-neutral-400">
+      <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      <p class="text-sm">選擇商品進行比較</p>
+    </div>
+  <% else %>
+    <div class="relative w-full" style="height: 320px;">
+      <canvas data-pareto-radar-target="canvas" class="w-full h-full"></canvas>
+    </div>
+
+    <% if show_legend %>
+      <div class="mt-4 pt-4 border-t border-neutral-100">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <% products_data.each_with_index do |product, index| %>
+            <div class="flex items-center gap-2 text-sm"
+                 data-action="mouseenter->pareto-radar#highlight mouseleave->pareto-radar#resetHighlight"
+                 data-pareto-radar-index-param="<%= index %>">
+              <span class="w-3 h-3 rounded-full"
+                    style="background-color: <%= radar_color(index) %>"></span>
+              <span class="truncate text-neutral-700"><%= product[:title] %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="mt-4 text-xs text-neutral-400 space-y-1">
+      <p>* 雷達圖展示各商品在不同目標上的表現 (0-100分)</p>
+      <p>* 面積越大，綜合表現越好；Pareto 最優解無絕對優劣</p>
+    </div>
+  <% end %>
+</div>

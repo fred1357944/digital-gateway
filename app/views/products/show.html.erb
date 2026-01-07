@@ -25,14 +25,17 @@
         <div class="flex items-center gap-3">
           <span class="text-xs text-neutral-400 uppercase tracking-wider"><%= @product.content_type || 'Digital' %></span>
           <% if @product.published? %>
-            <span class="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full">✓ MVT Verified</span>
+            <span class="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full">MVT Verified</span>
+          <% end %>
+          <% if @product.ai_enhanced? %>
+            <span class="px-2 py-1 bg-purple-50 text-purple-700 text-xs rounded-full">AI Enhanced</span>
           <% end %>
         </div>
         <h1 class="text-3xl font-medium"><%= @product.title %></h1>
         <p class="text-neutral-500 leading-relaxed"><%= @product.description %></p>
       </div>
 
-      <!-- Seller Info (Airbnb style) -->
+      <!-- Seller Info -->
       <div class="flex items-center gap-4 py-6 border-t border-b border-neutral-100">
         <div class="w-12 h-12 bg-neutral-900 rounded-full flex items-center justify-center text-white font-medium">
           <%= @product.seller_profile&.store_name&.first&.upcase || 'S' %>
@@ -43,21 +46,34 @@
         </div>
       </div>
 
+      <!-- AI 智慧預覽 -->
+      <div class="space-y-4">
+        <h2 class="text-lg font-medium flex items-center gap-2">
+          <span class="text-purple-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+          </span>
+          智慧預覽
+        </h2>
+        <%= render "ai/previews/preview", product: @product %>
+      </div>
+
       <!-- What's included -->
       <div class="space-y-4">
-        <h2 class="text-lg font-medium">What's included</h2>
+        <h2 class="text-lg font-medium">包含內容</h2>
         <ul class="space-y-3">
           <li class="flex items-center gap-3 text-sm text-neutral-600">
             <span class="w-5 h-5 bg-neutral-100 rounded-full flex items-center justify-center text-xs">✓</span>
-            Full access to content
+            完整內容存取權限
           </li>
           <li class="flex items-center gap-3 text-sm text-neutral-600">
             <span class="w-5 h-5 bg-neutral-100 rounded-full flex items-center justify-center text-xs">✓</span>
-            MVT quality verified
+            MVT 品質驗證
           </li>
           <li class="flex items-center gap-3 text-sm text-neutral-600">
             <span class="w-5 h-5 bg-neutral-100 rounded-full flex items-center justify-center text-xs">✓</span>
-            Instant access after purchase
+            購買後即時存取
           </li>
         </ul>
       </div>
@@ -65,83 +81,137 @@
       <!-- MVT Report -->
       <% if @product.mvt_report.present? %>
         <div class="space-y-4 p-6 bg-neutral-50 rounded-xl">
-          <h2 class="text-lg font-medium">Quality Report</h2>
+          <h2 class="text-lg font-medium">品質報告</h2>
           <% report = @product.mvt_report %>
           <div class="grid grid-cols-4 gap-4 text-center">
             <div>
               <p class="text-2xl font-light"><%= (report.score_mvt * 100).round %>%</p>
-              <p class="text-xs text-neutral-500">MVT Score</p>
+              <p class="text-xs text-neutral-500">MVT 評分</p>
             </div>
             <div>
               <p class="text-2xl font-light text-green-600">✓</p>
-              <p class="text-xs text-neutral-500">Foundations</p>
+              <p class="text-xs text-neutral-500">基礎完整</p>
             </div>
             <div>
               <p class="text-2xl font-light text-green-600">✓</p>
-              <p class="text-xs text-neutral-500">Structure</p>
+              <p class="text-xs text-neutral-500">結構清晰</p>
             </div>
             <div>
               <p class="text-2xl font-light text-green-600">✓</p>
-              <p class="text-xs text-neutral-500">Logic</p>
+              <p class="text-xs text-neutral-500">邏輯嚴謹</p>
             </div>
           </div>
         </div>
       <% end %>
     </div>
 
-    <!-- Sidebar - Purchase Card (Airbnb style) - 2 columns -->
-    <div class="lg:col-span-2">
-      <div class="sticky top-24 p-6 border border-neutral-200 rounded-xl shadow-lg">
-        <!-- Price -->
-        <div class="mb-6">
-          <span class="text-3xl font-medium">NT$ <%= number_with_delimiter(@product.price.to_i) %></span>
+    <!-- Sidebar - 2 columns -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Purchase Card -->
+      <div class="sticky top-24 space-y-6">
+        <div class="p-6 border border-neutral-200 rounded-xl shadow-lg">
+          <!-- Price -->
+          <div class="mb-6">
+            <span class="text-3xl font-medium">NT$ <%= number_with_delimiter(@product.price.to_i) %></span>
+          </div>
+
+          <!-- Purchase Button -->
+          <% if user_signed_in? %>
+            <% existing_order = current_user.orders.where(product: @product, status: :paid).first %>
+            <% if existing_order %>
+              <%= link_to download_order_path(existing_order),
+                  class: "block w-full py-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors text-center mb-4" do %>
+                下載內容
+              <% end %>
+              <p class="text-xs text-neutral-400 text-center">您已擁有此商品</p>
+            <% else %>
+              <%= button_to "立即購買",
+                  orders_path(product_id: @product.id),
+                  method: :post,
+                  class: "w-full py-4 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors mb-4" %>
+              <p class="text-xs text-neutral-400 text-center">購買後即可存取</p>
+            <% end %>
+          <% else %>
+            <%= link_to new_user_session_path, class: "block w-full py-4 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors text-center mb-4" do %>
+              登入後購買
+            <% end %>
+            <p class="text-xs text-neutral-400 text-center">
+              新用戶？ <%= link_to "建立帳號", new_user_registration_path, class: "underline" %>
+            </p>
+          <% end %>
+
+          <!-- Trust badges -->
+          <div class="mt-6 pt-6 border-t border-neutral-100 space-y-3">
+            <div class="flex items-center gap-3 text-sm text-neutral-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              安全金流 (ECPay)
+            </div>
+            <div class="flex items-center gap-3 text-sm text-neutral-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+              MVT 品質認證
+            </div>
+            <div class="flex items-center gap-3 text-sm text-neutral-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              即時存取
+            </div>
+          </div>
         </div>
 
-        <!-- Purchase Button -->
-        <% if user_signed_in? %>
-          <% existing_order = current_user.orders.where(product: @product, status: :paid).first %>
-          <% if existing_order %>
-            <%= link_to download_order_path(existing_order),
-                class: "block w-full py-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors text-center mb-4" do %>
-              Download Content
-            <% end %>
-            <p class="text-xs text-neutral-400 text-center">You already own this product</p>
-          <% else %>
-            <%= button_to "Purchase now",
-                orders_path(product_id: @product.id),
-                method: :post,
-                class: "w-full py-4 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors mb-4" %>
-            <p class="text-xs text-neutral-400 text-center">Instant access after purchase</p>
-          <% end %>
-        <% else %>
-          <%= link_to new_user_session_path, class: "block w-full py-4 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors text-center mb-4" do %>
-            Log in to purchase
-          <% end %>
-          <p class="text-xs text-neutral-400 text-center">
-            New here? <%= link_to "Create account", new_user_registration_path, class: "underline" %>
-          </p>
-        <% end %>
+        <!-- AI 購買決策助手 -->
+        <div class="p-6 border border-purple-200 rounded-xl bg-purple-50/50">
+          <h3 class="text-lg font-medium mb-4 flex items-center gap-2">
+            <span class="text-purple-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </span>
+            這門課適合我嗎？
+          </h3>
 
-        <!-- Trust badges -->
-        <div class="mt-6 pt-6 border-t border-neutral-100 space-y-3">
-          <div class="flex items-center gap-3 text-sm text-neutral-500">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
-            Secure payment via ECPay
-          </div>
-          <div class="flex items-center gap-3 text-sm text-neutral-500">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-            </svg>
-            Quality verified by MVT
-          </div>
-          <div class="flex items-center gap-3 text-sm text-neutral-500">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-            Instant access
-          </div>
+          <%= form_with url: ai_product_decision_path(@product), method: :post, data: { turbo_frame: "decision-result" }, class: "space-y-4" do |f| %>
+            <div>
+              <label class="block text-sm font-medium text-neutral-700 mb-1">你想學什麼？</label>
+              <input type="text"
+                     name="goal"
+                     placeholder="例如：想學會建立電商網站"
+                     class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                     required>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-neutral-700 mb-1">目前程度</label>
+              <select name="level" class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                <option value="完全新手">完全新手</option>
+                <option value="有基礎概念">有基礎概念</option>
+                <option value="有實作經驗">有實作經驗</option>
+                <option value="進階使用者">進階使用者</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-neutral-700 mb-1">每週可學習時間</label>
+              <select name="available_hours" class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                <option value="2">2 小時以下</option>
+                <option value="5">2-5 小時</option>
+                <option value="10">5-10 小時</option>
+                <option value="20">10 小時以上</option>
+              </select>
+            </div>
+
+            <button type="submit"
+                    class="w-full py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors">
+              AI 分析適合度
+            </button>
+          <% end %>
+
+          <!-- Decision Result Container -->
+          <turbo-frame id="decision-result" class="mt-4"></turbo-frame>
         </div>
       </div>
     </div>

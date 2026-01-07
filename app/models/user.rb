@@ -12,12 +12,13 @@ class User < ApplicationRecord
   enum :role, { buyer: 0, seller: 1, admin: 2 }, default: :buyer
 
   # BYOK - Encrypt Gemini API Key with Lockbox
-  encrypts :gemini_api_key, migrating: true
+  has_encrypted :gemini_api_key
 
   # Associations
   has_one :seller_profile, dependent: :destroy
   has_many :orders, dependent: :destroy
   has_many :access_tokens, dependent: :destroy
+  has_many :ai_conversations, dependent: :destroy
 
   # Validations
   validates :role, presence: true
@@ -29,6 +30,9 @@ class User < ApplicationRecord
   def has_api_key?
     gemini_api_key.present?
   end
+
+  # Alias for views
+  alias_method :has_gemini_key?, :has_api_key?
 
   private
 
