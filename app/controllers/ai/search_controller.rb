@@ -93,6 +93,8 @@ module Ai
       @actual_mode = :explore
       @cost_estimate = result[:cost_estimate]
       @relaxed = result[:relaxed]
+      @relaxed_constraints = result[:relaxed_constraints] || []
+      @suggestions = result[:suggestions] || []
     end
 
     def handle_economy_result(result)

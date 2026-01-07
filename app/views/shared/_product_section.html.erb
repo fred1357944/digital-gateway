@@ -1,0 +1,60 @@
+<%#
+  產品區塊元件 (Airbnb 風格)
+
+  使用方式:
+    <%= render 'shared/product_section',
+        title: "AI 精選課程",
+        subtitle: "經過 AI 分析推薦的高品質課程",
+        products: @featured_products,
+        link_path: ai_search_path(mode: :explore),
+        link_text: "探索更多" %>
+
+  參數:
+    - title: 區塊標題 (必填)
+    - products: Product 集合 (必填)
+    - subtitle: 副標題 (可選)
+    - link_path: 「查看更多」連結路徑 (可選)
+    - link_text: 「查看更多」文字 (可選，預設 "查看全部")
+    - bg_class: 背景 CSS class (可選，預設 "bg-white")
+    - compact: 是否使用緊湊卡片 (可選，預設 false)
+%>
+
+<% bg_class = local_assigns.fetch(:bg_class, "bg-white") %>
+<% link_text = local_assigns.fetch(:link_text, "查看全部") %>
+<% compact = local_assigns.fetch(:compact, false) %>
+
+<section class="<%= bg_class %>">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+    <!-- Header -->
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <h2 class="text-2xl font-medium text-neutral-900"><%= title %></h2>
+        <% if local_assigns[:subtitle] %>
+          <p class="text-sm text-neutral-500 mt-1"><%= subtitle %></p>
+        <% end %>
+      </div>
+      <% if local_assigns[:link_path] %>
+        <%= link_to link_path,
+            class: "text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1 group" do %>
+          <%= link_text %>
+          <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- Products Grid -->
+    <% if products.any? %>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <% products.each do |product| %>
+          <%= render 'shared/product_card', product: product, compact: compact %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-12 bg-neutral-50 rounded-2xl">
+        <p class="text-neutral-400">目前沒有課程</p>
+      </div>
+    <% end %>
+  </div>
+</section>

@@ -172,8 +172,15 @@
           </span>
         <% end %>
         <% if @relaxed %>
-          <span class="text-xs text-amber-600">
-            (已放寬預算條件)
+          <span class="text-xs text-amber-600 flex items-center gap-1">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <% if @relaxed_constraints.present? %>
+              已放寬：<%= @relaxed_constraints.join('、') %>
+            <% else %>
+              已放寬搜尋條件
+            <% end %>
           </span>
         <% end %>
       </div>
@@ -190,45 +197,7 @@
     <% if @results.any? %>
       <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <% @results.each do |product| %>
-          <%= link_to product_path(product), class: "group block bg-white rounded-2xl overflow-hidden border border-neutral-200 hover:shadow-xl hover:border-purple-200 transition-all" do %>
-            <!-- Product Image Placeholder -->
-            <div class="aspect-video bg-gradient-to-br from-purple-100 to-pink-50 relative">
-              <% if product.ai_enhanced? %>
-                <span class="absolute top-3 left-3 px-2 py-1 text-xs bg-white/90 text-purple-700 rounded-full backdrop-blur-sm">
-                  AI 精選
-                </span>
-              <% end %>
-            </div>
-            <div class="p-4">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs text-neutral-400 uppercase"><%= product.content_type %></span>
-                <% if product.product_score %>
-                  <span class="text-xs text-green-600">
-                    ★ <%= product.product_score.quality_score %>
-                  </span>
-                <% end %>
-              </div>
-              <h3 class="font-medium text-neutral-900 group-hover:text-purple-600 transition-colors line-clamp-2">
-                <%= product.title %>
-              </h3>
-              <p class="text-sm text-neutral-500 mt-1 line-clamp-2">
-                <%= product.ai_summary || truncate(product.description, length: 80) %>
-              </p>
-              <div class="flex items-center justify-between mt-3">
-                <span class="text-sm text-neutral-400">
-                  <%= product.seller_profile&.store_name || "Seller" %>
-                </span>
-                <span class="text-lg font-medium text-neutral-900">
-                  NT$ <%= number_with_delimiter(product.price.to_i) %>
-                </span>
-              </div>
-              <% if product.ai_metadata&.dig("difficulty") %>
-                <span class="inline-block mt-2 px-2 py-0.5 text-xs bg-neutral-100 text-neutral-600 rounded">
-                  <%= product.ai_metadata["difficulty"] %>
-                </span>
-              <% end %>
-            </div>
-          <% end %>
+          <%= render 'shared/product_card', product: product %>
         <% end %>
       </div>
     <% else %>
@@ -239,6 +208,19 @@
         </svg>
         <p class="text-neutral-500">找不到符合條件的課程</p>
         <p class="text-sm text-neutral-400 mt-1">試試其他關鍵字或描述方式</p>
+
+        <% if @suggestions.present? %>
+          <div class="mt-6">
+            <p class="text-sm text-neutral-500 mb-3">或許你想搜尋：</p>
+            <div class="flex flex-wrap justify-center gap-2">
+              <% @suggestions.each do |suggestion| %>
+                <%= link_to suggestion,
+                    ai_search_path(q: suggestion, mode: :explore),
+                    class: "px-4 py-2 text-sm bg-purple-50 text-purple-700 rounded-full hover:bg-purple-100 transition-colors" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
       </div>
     <% end %>
   <% elsif @query.blank? %>

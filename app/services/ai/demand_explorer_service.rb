@@ -125,29 +125,89 @@ module Ai
       scope.order(created_at: :desc).limit(MAX_SQL_RESULTS)
     end
 
+    # 智慧條件鬆弛 (Constraint Relaxation)
+    # 依序嘗試：預算 → 難度 → 預算+難度 → 擴展主題
     def handle_no_results(slots)
-      # 條件鬆弛：移除價格限制再試一次
-      relaxed_slots = slots.except(:budget_max)
-      candidates = sql_filter(relaxed_slots)
+      relaxation_strategies = [
+        { remove: [:budget_max], message: "在您的預算範圍內沒有找到課程" },
+        { remove: [:level], message: "沒有找到指定難度的課程" },
+        { remove: [:budget_max, :level], message: "放寬了預算和難度限制" },
+        { broaden_topic: true, message: "擴展了搜尋範圍" }
+      ]
 
-      if candidates.any?
-        return {
-          success: true,
-          state: :completed,
-          slots: slots,
-          products: candidates.limit(MAX_LLM_RESULTS),
-          explanation: "在您的預算範圍內沒有找到課程，以下是相關主題的其他選項：",
-          relaxed: true
-        }
+      relaxation_strategies.each do |strategy|
+        result = try_relaxation(slots, strategy)
+        return result if result
+      end
+
+      # 所有鬆弛策略都失敗
+      {
+        success: true,
+        state: :completed,
+        slots: slots,
+        products: [],
+        explanation: "抱歉，找不到符合「#{slots[:topic]}」的課程。試試其他關鍵字？",
+        suggestions: generate_search_suggestions(slots[:topic])
+      }
+    end
+
+    def try_relaxation(slots, strategy)
+      if strategy[:broaden_topic]
+        # 擴展主題：只保留第一個關鍵字
+        first_keyword = slots[:topic].to_s.split(/[\s,，、]+/).first
+        relaxed_slots = { topic: first_keyword }
+      else
+        relaxed_slots = slots.except(*strategy[:remove])
+      end
+
+      candidates = sql_filter(relaxed_slots)
+      return nil if candidates.empty?
+
+      # 記錄哪些條件被鬆弛
+      relaxed_constraints = []
+      relaxed_constraints << "預算" if strategy[:remove]&.include?(:budget_max) && slots[:budget_max]
+      relaxed_constraints << "難度" if strategy[:remove]&.include?(:level) && slots[:level]
+      relaxed_constraints << "主題範圍" if strategy[:broaden_topic]
+
+      explanation = if relaxed_constraints.any?
+        "#{strategy[:message]}，為您推薦相關課程（已放寬：#{relaxed_constraints.join('、')}）"
+      else
+        "為您推薦相關課程"
       end
 
       {
         success: true,
         state: :completed,
         slots: slots,
-        products: [],
-        explanation: "抱歉，找不到符合「#{slots[:topic]}」的課程。試試其他關鍵字？"
+        products: candidates.limit(MAX_LLM_RESULTS),
+        explanation: explanation,
+        relaxed: true,
+        relaxed_constraints: relaxed_constraints
       }
+    end
+
+    def generate_search_suggestions(topic)
+      return [] if topic.blank?
+
+      # 生成搜尋建議
+      suggestions = []
+
+      # 相關主題建議
+      topic_map = {
+        "程式" => ["Python", "JavaScript", "Rails"],
+        "設計" => ["UI設計", "平面設計", "Figma"],
+        "行銷" => ["數位行銷", "社群經營", "SEO"],
+        "Rails" => ["Ruby", "Web開發", "後端"],
+        "JavaScript" => ["前端", "React", "Node.js"]
+      }
+
+      topic_map.each do |key, related|
+        if topic.downcase.include?(key.downcase)
+          suggestions.concat(related)
+        end
+      end
+
+      suggestions.take(3)
     end
 
     def llm_rank_and_recommend(candidates, slots, original_query)

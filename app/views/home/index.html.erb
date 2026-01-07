@@ -1,92 +1,161 @@
-<!-- Hero - Minimal & Bold -->
-<section class="min-h-[80vh] flex items-center">
-  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24">
-    <div class="max-w-3xl">
-      <h1 class="text-5xl md:text-7xl font-light tracking-tight leading-[1.1] mb-8">
-        Sell digital goods<br>
-        <span class="text-neutral-400">with confidence.</span>
+<!-- Hero with AI Search (Airbnb style) -->
+<section class="relative bg-gradient-to-b from-purple-50 to-white">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20 lg:py-28">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="text-4xl md:text-6xl font-light tracking-tight leading-[1.1] mb-6">
+        找到你的<br>
+        <span class="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">下一個學習旅程</span>
       </h1>
-      <p class="text-lg text-neutral-500 max-w-xl mb-12 leading-relaxed">
-        A marketplace that validates content quality before it reaches buyers.
-        Built for creators who care about what they sell.
+      <p class="text-lg text-neutral-500 max-w-xl mx-auto mb-10 leading-relaxed">
+        告訴 AI 你想學什麼，我們幫你找到最適合的課程
       </p>
-      <div class="flex items-center gap-6">
-        <%= link_to new_user_registration_path, class: "px-8 py-4 bg-neutral-900 text-white text-sm font-medium rounded-full hover:bg-neutral-700 transition-colors" do %>
-          Start selling →
+
+      <!-- AI Search Bar -->
+      <form action="/ai/search" method="get" class="max-w-2xl mx-auto" data-turbo="false">
+        <input type="hidden" name="mode" value="explore">
+        <div class="bg-white rounded-full shadow-xl border border-neutral-200 p-2 flex items-center">
+          <div class="flex-1 px-6">
+            <input type="text"
+                   name="q"
+                   placeholder="想學什麼？例如：Rails 入門、便宜的設計課..."
+                   class="w-full py-3 text-neutral-900 placeholder-neutral-400 focus:outline-none bg-transparent">
+          </div>
+          <button type="submit"
+                  class="p-4 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:shadow-lg transition-shadow cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+
+      <!-- Quick Links -->
+      <div class="flex flex-wrap justify-center gap-3 mt-6">
+        <% ["程式開發", "設計", "行銷", "語言學習"].each do |topic| %>
+          <%= link_to topic, ai_search_path(q: topic, mode: :explore),
+              class: "px-4 py-2 text-sm text-neutral-600 bg-white/80 rounded-full border border-neutral-200 hover:border-purple-300 hover:text-purple-600 transition-colors" %>
         <% end %>
-        <%= link_to products_path, class: "text-sm text-neutral-500 hover:text-neutral-900 transition-colors" do %>
-          Browse products
-        <% end %>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Features - Clean Grid -->
+<!-- Category Sections (Airbnb style) -->
+
+<% if @featured_products.any? %>
+  <!-- AI Featured -->
+  <%= render 'shared/product_section',
+      title: "AI 精選課程",
+      subtitle: "經過 AI 分析推薦的高品質課程",
+      products: @featured_products,
+      link_path: ai_search_path(mode: :explore),
+      link_text: "探索更多" %>
+<% end %>
+
+<% if @programming_courses.any? %>
+  <!-- Programming -->
+  <%= render 'shared/product_section',
+      title: "熱門程式課程",
+      subtitle: "Rails、JavaScript、Python 等程式開發",
+      products: @programming_courses,
+      link_path: ai_search_path(q: "程式", mode: :explore),
+      link_text: "查看全部",
+      bg_class: "bg-neutral-50" %>
+<% end %>
+
+<% if @beginner_courses.any? %>
+  <!-- Beginner Friendly -->
+  <%= render 'shared/product_section',
+      title: "適合新手的入門課",
+      subtitle: "零基礎也能輕鬆學習",
+      products: @beginner_courses,
+      link_path: ai_search_path(q: "入門", mode: :explore),
+      link_text: "查看全部" %>
+<% end %>
+
+<% if @recent_products.any? %>
+  <!-- Recent -->
+  <%= render 'shared/product_section',
+      title: "最新上架",
+      subtitle: "剛剛加入的新課程",
+      products: @recent_products,
+      link_path: products_path,
+      link_text: "瀏覽全部",
+      bg_class: "bg-neutral-50" %>
+<% end %>
+
+<!-- Features Grid -->
 <section class="border-t border-neutral-100">
-  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24">
-    <div class="grid md:grid-cols-3 gap-16">
-      <div>
-        <p class="text-xs text-neutral-400 uppercase tracking-wider mb-4">01</p>
-        <h3 class="text-lg font-medium mb-3">MVT Validation</h3>
-        <p class="text-sm text-neutral-500 leading-relaxed">
-          Four-dimensional content analysis. Check assumptions, structure, logic, and scientific integrity automatically.
-        </p>
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+    <h2 class="text-2xl font-light text-center mb-12">為什麼選擇我們</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="text-center p-6">
+        <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium mb-2">AI 智慧推薦</h3>
+        <p class="text-sm text-neutral-500">用自然語言描述需求，AI 幫你找到最適合的課程</p>
       </div>
-      <div>
-        <p class="text-xs text-neutral-400 uppercase tracking-wider mb-4">02</p>
-        <h3 class="text-lg font-medium mb-3">BYOK Integration</h3>
-        <p class="text-sm text-neutral-500 leading-relaxed">
-          Bring your own API key. Use your Gemini quota, control costs, no hidden fees.
-        </p>
+      <div class="text-center p-6">
+        <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium mb-2">品質驗證</h3>
+        <p class="text-sm text-neutral-500">MVT 四維度分析確保內容品質，買得安心</p>
       </div>
-      <div>
-        <p class="text-xs text-neutral-400 uppercase tracking-wider mb-4">03</p>
-        <h3 class="text-lg font-medium mb-3">Smart Access</h3>
-        <p class="text-sm text-neutral-500 leading-relaxed">
-          Signed URLs, timed tokens, automatic permissions. Host content anywhere, we handle access.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- How it works - Minimal Steps -->
-<section class="bg-neutral-50">
-  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24">
-    <h2 class="text-3xl font-light mb-16">How it works</h2>
-    <div class="grid md:grid-cols-4 gap-8">
-      <div class="flex flex-col">
-        <span class="text-6xl font-extralight text-neutral-200 mb-4">1</span>
-        <p class="text-sm font-medium mb-2">Create</p>
-        <p class="text-xs text-neutral-500">Add your product with content links</p>
-      </div>
-      <div class="flex flex-col">
-        <span class="text-6xl font-extralight text-neutral-200 mb-4">2</span>
-        <p class="text-sm font-medium mb-2">Validate</p>
-        <p class="text-xs text-neutral-500">MVT checks content quality</p>
-      </div>
-      <div class="flex flex-col">
-        <span class="text-6xl font-extralight text-neutral-200 mb-4">3</span>
-        <p class="text-sm font-medium mb-2">Publish</p>
-        <p class="text-xs text-neutral-500">Go live with verified badge</p>
-      </div>
-      <div class="flex flex-col">
-        <span class="text-6xl font-extralight text-neutral-200 mb-4">4</span>
-        <p class="text-sm font-medium mb-2">Earn</p>
-        <p class="text-xs text-neutral-500">ECPay handles Taiwan payments</p>
+      <div class="text-center p-6">
+        <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium mb-2">台灣在地支付</h3>
+        <p class="text-sm text-neutral-500">支援 ECPay 信用卡、ATM 轉帳，安全便利</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA - Simple -->
+<!-- Stats Section -->
+<section class="bg-neutral-900 text-white">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+    <div class="grid md:grid-cols-3 gap-8 text-center">
+      <div>
+        <p class="text-4xl font-light mb-2"><%= @stats[:products] %></p>
+        <p class="text-sm text-neutral-400">精選課程</p>
+      </div>
+      <div>
+        <p class="text-4xl font-light mb-2"><%= @stats[:sellers] %></p>
+        <p class="text-sm text-neutral-400">優質創作者</p>
+      </div>
+      <div>
+        <p class="text-4xl font-light mb-2"><%= @stats[:ai_enhanced] %></p>
+        <p class="text-sm text-neutral-400">AI 增強課程</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
 <section class="border-t border-neutral-100">
-  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-32 text-center">
-    <h2 class="text-4xl md:text-5xl font-light mb-8">Ready to start?</h2>
-    <p class="text-neutral-500 mb-12">Free to list. Only pay when you sell.</p>
-    <%= link_to new_user_registration_path, class: "inline-block px-8 py-4 bg-neutral-900 text-white text-sm font-medium rounded-full hover:bg-neutral-700 transition-colors" do %>
-      Create account →
-    <% end %>
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 py-24 text-center">
+    <h2 class="text-3xl md:text-4xl font-light mb-6">準備好開始學習了嗎？</h2>
+    <p class="text-neutral-500 mb-10 max-w-md mx-auto">
+      加入我們，探索數千個高品質數位課程
+    </p>
+    <div class="flex items-center justify-center gap-4">
+      <%= link_to ai_search_path(mode: :explore),
+          class: "px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm font-medium rounded-full hover:shadow-lg transition-shadow" do %>
+        開始探索 →
+      <% end %>
+      <%= link_to new_user_registration_path,
+          class: "px-8 py-4 text-sm text-neutral-700 border border-neutral-300 rounded-full hover:border-neutral-400 transition-colors" do %>
+        免費註冊
+      <% end %>
+    </div>
   </div>
 </section>
