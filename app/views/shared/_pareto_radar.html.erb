@@ -1,25 +1,6 @@
-<%#
-  Pareto Radar Chart Component
-
-  Usage:
-    <%= render 'shared/pareto_radar',
-        products: @products,
-        title: "商品比較",
-        show_legend: true %>
-
-  Expected product format:
-    {
-      id: 1,
-      title: "Product Name",
-      scores: {
-        price: 85,      # 0-100
-        quality: 70,    # 0-100
-        speed: 90,      # 0-100
-        reputation: 75, # 0-100
-        relevance: 80   # 0-100
-      }
-    }
-%>
+<%# Pareto Radar Chart Component %>
+<%# Usage: render 'shared/pareto_radar', products: @products, title: "商品比較", show_legend: true %>
+<%# Expected product format: { id, title, scores: { price, quality, speed, reputation, relevance } } %>
 
 <% products ||= [] %>
 <% title ||= "多維度比較" %>

@@ -1,9 +1,6 @@
-<%#
-  AI 點數徽章
-
-  使用方式 (在 navbar 中):
-    <%= render 'shared/credits_badge' if user_signed_in? %>
-%>
+<%# AI 點數徽章 %>
+<%# 使用方式 (在 navbar 中): %>
+<%#   render 'shared/credits_badge' if user_signed_in? %>
 
 <% if user_signed_in? %>
   <%= link_to ai_usage_path,

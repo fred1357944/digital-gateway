@@ -1,17 +1,13 @@
-<%#
-  課程卡片元件 (Airbnb 風格)
-
-  使用方式:
-    <%= render 'shared/product_card', product: @product %>
-    <%= render 'shared/product_card', product: @product, show_badges: true %>
-    <%= render 'shared/product_card', product: @product, compact: true %>
-
-  參數:
-    - product: Product 物件 (必填)
-    - show_badges: 是否顯示標籤 (預設 true)
-    - compact: 是否緊湊模式 (預設 false)
-    - lazy_image: 是否延遲載入圖片 (預設 true)
-%>
+<%# 課程卡片元件 (Airbnb 風格) %>
+<%# 使用方式: %>
+<%#   render 'shared/product_card', product: @product %>
+<%#   render 'shared/product_card', product: @product, show_badges: true %>
+<%#   render 'shared/product_card', product: @product, compact: true %>
+<%# 參數: %>
+<%#   - product: Product 物件 (必填) %>
+<%#   - show_badges: 是否顯示標籤 (預設 true) %>
+<%#   - compact: 是否緊湊模式 (預設 false) %>
+<%#   - lazy_image: 是否延遲載入圖片 (預設 true) %>
 
 <% show_badges = local_assigns.fetch(:show_badges, true) %>
 <% compact = local_assigns.fetch(:compact, false) %>

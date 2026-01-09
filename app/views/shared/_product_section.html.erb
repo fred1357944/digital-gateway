@@ -1,23 +1,6 @@
-<%#
-  產品區塊元件 (Airbnb 風格)
-
-  使用方式:
-    <%= render 'shared/product_section',
-        title: "AI 精選課程",
-        subtitle: "經過 AI 分析推薦的高品質課程",
-        products: @featured_products,
-        link_path: ai_search_path(mode: :explore),
-        link_text: "探索更多" %>
-
-  參數:
-    - title: 區塊標題 (必填)
-    - products: Product 集合 (必填)
-    - subtitle: 副標題 (可選)
-    - link_path: 「查看更多」連結路徑 (可選)
-    - link_text: 「查看更多」文字 (可選，預設 "查看全部")
-    - bg_class: 背景 CSS class (可選，預設 "bg-white")
-    - compact: 是否使用緊湊卡片 (可選，預設 false)
-%>
+<%# 產品區塊元件 (Airbnb 風格) %>
+<%# 使用方式: render 'shared/product_section', title: "...", products: @products %>
+<%# 參數: title(必填), products(必填), subtitle, link_path, link_text, bg_class, compact %>
 
 <% bg_class = local_assigns.fetch(:bg_class, "bg-white") %>
 <% link_text = local_assigns.fetch(:link_text, "查看全部") %>

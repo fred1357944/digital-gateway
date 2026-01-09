@@ -1,12 +1,9 @@
-<%#
-  AI 回應反饋按鈕
-
-  使用方式:
-    <%= render 'ai/feedbacks/feedback_buttons',
-        conversation_id: @conversation&.id,
-        query: @query,
-        response_summary: @explanation %>
-%>
+<%# AI 回應反饋按鈕 %>
+<%# 使用方式: %>
+<%#   render 'ai/feedbacks/feedback_buttons', %>
+<%#       conversation_id: @conversation&.id, %>
+<%#       query: @query, %>
+<%#       response_summary: @explanation %>
 
 <% conversation_id ||= nil %>
 <% query ||= "" %>
@@ -17,7 +14,7 @@
   <span class="text-sm text-neutral-500">這個回答有幫助嗎？</span>
 
   <!-- 👍 讚 -->
-  <%= form_with url: ai_feedbacks_path, method: :post, data: { turbo_frame: "_top" }, class: "inline" do |f| %>
+  <%= form_with url: ai_feedbacks_path, scope: :ai_feedback, method: :post, data: { turbo_frame: "_top" }, class: "inline" do |f| %>
     <%= f.hidden_field :feedback_type, value: "thumbs_up" %>
     <%= f.hidden_field :query, value: query %>
     <%= f.hidden_field :response_summary, value: response_summary.to_s.truncate(500) %>
@@ -29,7 +26,7 @@
   <% end %>
 
   <!-- 👎 踩 -->
-  <%= form_with url: ai_feedbacks_path, method: :post, data: { turbo_frame: "_top" }, class: "inline" do |f| %>
+  <%= form_with url: ai_feedbacks_path, scope: :ai_feedback, method: :post, data: { turbo_frame: "_top" }, class: "inline" do |f| %>
     <%= f.hidden_field :feedback_type, value: "thumbs_down" %>
     <%= f.hidden_field :query, value: query %>
     <%= f.hidden_field :response_summary, value: response_summary.to_s.truncate(500) %>

@@ -68,7 +68,8 @@ module Ai
         products: result[:products],
         explanation: result[:explanation],
         intent: result[:intent],
-        cost_estimate: result[:cost_estimate]
+        cost_estimate: result[:cost_estimate],
+        token_usage: result[:token_usage]
       }
     rescue GeminiClient::ApiError => e
       { success: false, error: e.message, state: :error }
